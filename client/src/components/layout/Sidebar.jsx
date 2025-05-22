@@ -212,7 +212,7 @@ export const SidebarBody = ({ children }) => {
         </nav>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .custom-scrollbar::-webkit-scrollbar {
           width: 4px;
         }

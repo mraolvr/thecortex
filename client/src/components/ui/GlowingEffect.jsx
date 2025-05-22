@@ -24,7 +24,7 @@ export default function GlowingEffect({ children, className = '', gradient }) {
       )}
     >
       {children}
-      <style jsx="true" global="true">{`
+      <style global="true">{`
         @keyframes gradient-move {
           0% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }

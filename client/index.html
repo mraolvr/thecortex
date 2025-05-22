@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Cortex</title>
+    <link rel="stylesheet" href="/src/styles/fonts.css">
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Metropolis', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: #1C1C1C;
+        color: white;
+      }
+      #root {
+        min-height: 100vh;
+      }
+      .initial-loader {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background-color: #1C1C1C;
+      }
+      .initial-loader__spinner {
+        width: 50px;
+        height: 50px;
+        border: 3px solid #2D2D2D;
+        border-top-color: #3b82f6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <div class="initial-loader">
+        <div class="initial-loader__spinner"></div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html> 

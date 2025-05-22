@@ -1,0 +1,125 @@
+// This is your Prisma schema file
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id              String            @id @default(uuid())
+  email           String            @unique
+  name            String?
+  preferences     Json?
+  projects        Project[]
+  tasks           Task[]
+  mediaItems      MediaItem[]
+  books           Book[]
+  journalEntries  JournalEntry[]
+  contacts        Contact[]
+  vaultItems      VaultItem[]
+  aiConversations AIConversation[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+}
+
+model Project {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  status      String    // "active", "completed", "archived"
+  tasks       Task[]
+  mediaItems  MediaItem[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Task {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  projectId   String?
+  project     Project?  @relation(fields: [projectId], references: [id])
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  priority    String?   // "high", "medium", "low"
+  dueDate     DateTime?
+  status      String    // "todo", "in_progress", "completed"
+  mediaItems  MediaItem[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model MediaItem {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  title       String
+  type        String    // "image", "document", "video", "audio"
+  storagePath String
+  metadata    Json?
+  aiTags      Json?
+  projects    Project[]
+  tasks       Task[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Book {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  title       String
+  author      String?
+  metadata    Json?
+  aiInsights  Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model JournalEntry {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  title       String?
+  content     String
+  tags        String[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Contact {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  name        String
+  email       String?
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model VaultItem {
+  id             String    @id @default(uuid())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id])
+  title          String
+  encryptedData  String
+  category       String    // "password", "note", "financial", "document"
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model AIConversation {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  agentType   String    // "mentor", "summarizer", "emailEditor"
+  messages    Json
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+} 

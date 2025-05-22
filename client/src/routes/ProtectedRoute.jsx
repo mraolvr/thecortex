@@ -15,7 +15,8 @@ export default function ProtectedRoute({ children }) {
   }
 
   if (!user) {
-    return <Navigate to="/auth/login" replace />;
+    window.location.href = "https://thecortex.netlify.app";
+    return null;
   }
 
   return children;

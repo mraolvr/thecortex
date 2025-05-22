@@ -33,9 +33,9 @@ export default function Login() {
 
   useEffect(() => {
     if (user) {
-      navigate('/dashboard');
+      window.location.href = "https://thecortex.netlify.app";
     }
-  }, [user, navigate]);
+  }, [user]);
 
   const handleGoogleLogin = async () => {
     try {

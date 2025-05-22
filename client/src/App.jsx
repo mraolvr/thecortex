@@ -61,6 +61,7 @@ function App() {
                       <div className="max-w-[1600px] mx-auto">
                         <Routes>
                           <Route path="/login" element={<Login />} />
+                          <Route path="/auth/login" element={<Login />} />
                           <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
                           <Route path="/guidance" element={<ProtectedRoute><GuidanceHub /></ProtectedRoute>} />
                           <Route path="/work" element={<ProtectedRoute><WorkHub /></ProtectedRoute>} />

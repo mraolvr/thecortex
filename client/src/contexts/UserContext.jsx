@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../services/supabase';
 
 const UserContext = createContext();
 
@@ -7,15 +7,35 @@ export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Initial user fetch
-    getUser();
+    // Initial session check
+    const initializeAuth = async () => {
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) throw sessionError;
+        
+        if (session) {
+          await getUser(session.user);
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializeAuth();
 
     // Subscribe to auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
-        await getUser();
+        if (session?.user) {
+          await getUser(session.user);
+        }
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
         setProfile(null);
@@ -27,58 +47,51 @@ export function UserProvider({ children }) {
     };
   }, []);
 
-  const getUser = async () => {
+  const getUser = async (userData) => {
     try {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      setUser(userData);
       
-      if (userError) throw userError;
+      // Get user profile
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userData.id)
+        .single();
       
-      if (user) {
-        setUser(user);
-        
-        // Get user profile
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-        
-        if (profileError) {
-          console.error('Error fetching profile:', profileError);
-          // If profile doesn't exist, create it
-          if (profileError.code === 'PGRST116') {
-            const { error: insertError } = await supabase
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
+        // If profile doesn't exist, create it
+        if (profileError.code === 'PGRST116') {
+          const { error: insertError } = await supabase
+            .from('profiles')
+            .insert({
+              id: userData.id,
+              email: userData.email,
+              full_name: userData.user_metadata?.full_name || userData.user_metadata?.name,
+              avatar_url: userData.user_metadata?.avatar_url
+            });
+          
+          if (insertError) {
+            console.error('Error creating profile:', insertError);
+          } else {
+            // Fetch the newly created profile
+            const { data: newProfile } = await supabase
               .from('profiles')
-              .insert({
-                id: user.id,
-                email: user.email,
-                full_name: user.user_metadata?.full_name || user.user_metadata?.name,
-                avatar_url: user.user_metadata?.avatar_url
-              });
+              .select('*')
+              .eq('id', userData.id)
+              .single();
             
-            if (insertError) {
-              console.error('Error creating profile:', insertError);
-            } else {
-              // Fetch the newly created profile
-              const { data: newProfile } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', user.id)
-                .single();
-              
-              if (newProfile) {
-                setProfile(newProfile);
-              }
+            if (newProfile) {
+              setProfile(newProfile);
             }
           }
-        } else {
-          setProfile(profile);
         }
+      } else {
+        setProfile(profile);
       }
     } catch (error) {
       console.error('Error in getUser:', error);
-    } finally {
-      setLoading(false);
+      setError(error.message);
     }
   };
 
@@ -92,9 +105,10 @@ export function UserProvider({ children }) {
       if (error) throw error;
 
       // Refresh profile data
-      await getUser();
+      await getUser(user);
     } catch (error) {
       console.error('Error updating profile:', error);
+      setError(error.message);
       throw error;
     }
   };
@@ -103,8 +117,9 @@ export function UserProvider({ children }) {
     user,
     profile,
     loading,
+    error,
     updateProfile,
-    refreshUser: getUser
+    refreshUser: () => user && getUser(user)
   };
 
   return (

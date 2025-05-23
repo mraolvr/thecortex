@@ -32,18 +32,32 @@ export default function Login() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (user) {
-      // Check if we have the necessary Google Calendar scope
-      const hasCalendarScope = user.app_metadata?.provider_token?.scope?.includes('https://www.googleapis.com/auth/calendar');
-      
-      if (hasCalendarScope) {
-        window.location.href = "https://thecortex.netlify.app";
-      } else {
-        // If we don't have calendar scope, we need to re-authenticate
-        handleGoogleLogin();
+    // Check for existing session
+    const checkSession = async () => {
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) throw sessionError;
+        
+        if (session) {
+          // Check if we have the necessary Google Calendar scope
+          const hasCalendarScope = session.provider_token?.scope?.includes('https://www.googleapis.com/auth/calendar');
+          
+          if (hasCalendarScope) {
+            window.location.href = "https://thecortex.netlify.app";
+          } else {
+            // If we don't have calendar scope, we need to re-authenticate
+            handleGoogleLogin();
+          }
+        }
+      } catch (error) {
+        console.error('Error checking session:', error);
+        setError(error.message);
       }
-    }
-  }, [user]);
+    };
+
+    checkSession();
+  }, []);
 
   const handleGoogleLogin = async () => {
     try {

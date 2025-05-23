@@ -33,7 +33,15 @@ export default function Login() {
 
   useEffect(() => {
     if (user) {
-      window.location.href = "https://thecortex.netlify.app";
+      // Check if we have the necessary Google Calendar scope
+      const hasCalendarScope = user.app_metadata?.provider_token?.scope?.includes('https://www.googleapis.com/auth/calendar');
+      
+      if (hasCalendarScope) {
+        window.location.href = "https://thecortex.netlify.app";
+      } else {
+        // If we don't have calendar scope, we need to re-authenticate
+        handleGoogleLogin();
+      }
     }
   }, [user]);
 
@@ -49,6 +57,7 @@ export default function Login() {
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
+            scope: 'email profile https://www.googleapis.com/auth/calendar',
           },
         }
       });

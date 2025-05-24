@@ -14,36 +14,36 @@ export default function AuthCallback() {
         const hash = window.location.hash;
         console.log('URL hash:', hash);
 
-        // Handle the OAuth callback
-        const { data, error } = await supabase.auth.getSession();
-        console.log('Initial session check:', data, error);
+        // First try to get the session
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        console.log('Initial session check:', session, sessionError);
+
+        if (sessionError) {
+          console.error('Session error:', sessionError);
+          throw sessionError;
+        }
+
+        if (session) {
+          console.log('Session found, redirecting to dashboard...');
+          navigate('/dashboard');
+          return;
+        }
+
+        // If no session, try to handle the OAuth callback
+        const { data, error } = await supabase.auth.getUser();
+        console.log('User data:', data, error);
 
         if (error) {
-          console.error('Auth error:', error);
+          console.error('User error:', error);
           throw error;
         }
 
-        // If we have a session, redirect to dashboard
-        if (data?.session) {
-          console.log('Session found, redirecting to dashboard...');
+        if (data?.user) {
+          console.log('User found, redirecting to dashboard...');
           navigate('/dashboard');
         } else {
-          // Try to exchange the code for a session
-          const { data: { session }, error: exchangeError } = await supabase.auth.exchangeCodeForSession(hash);
-          console.log('Exchange result:', session, exchangeError);
-
-          if (exchangeError) {
-            console.error('Exchange error:', exchangeError);
-            throw exchangeError;
-          }
-
-          if (session) {
-            console.log('Session created, redirecting to dashboard...');
-            navigate('/dashboard');
-          } else {
-            console.log('No session created, redirecting to login...');
-            navigate('/login');
-          }
+          console.log('No user found, redirecting to login...');
+          navigate('/login');
         }
       } catch (error) {
         console.error('Auth callback error:', error.message);

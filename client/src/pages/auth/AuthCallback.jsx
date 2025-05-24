@@ -8,15 +8,22 @@ export default function AuthCallback() {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
+        console.log('Starting auth callback...');
         const { data: { session }, error } = await supabase.auth.getSession();
         
-        if (error) throw error;
+        console.log('Session data:', session);
+        console.log('Error if any:', error);
+        
+        if (error) {
+          console.error('Auth error:', error);
+          throw error;
+        }
         
         if (session) {
-          // Successful login - redirect to dashboard
+          console.log('Session found, redirecting to dashboard...');
           navigate('/dashboard');
         } else {
-          // No session - redirect to login
+          console.log('No session found, redirecting to login...');
           navigate('/login');
         }
       } catch (error) {

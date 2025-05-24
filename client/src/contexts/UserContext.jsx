@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 
 const UserContext = createContext();
@@ -134,13 +134,14 @@ export function UserProvider({ children }) {
     }
   };
 
-  const value = {
+  // Memoize the context value to prevent unnecessary re-renders
+  const value = useMemo(() => ({
     user,
     profile,
     loading,
     error,
     updateProfile
-  };
+  }), [user, profile, loading, error]);
 
   return (
     <UserContext.Provider value={value}>

@@ -1,7 +1,8 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useUser } from '../contexts/UserContext';
+import { memo } from 'react';
 
-export default function ProtectedRoute({ children }) {
+const ProtectedRoute = memo(function ProtectedRoute({ children }) {
   const { user, loading } = useUser();
   const location = useLocation();
 
@@ -21,4 +22,6 @@ export default function ProtectedRoute({ children }) {
   }
 
   return children;
-} 
+});
+
+export default ProtectedRoute; 

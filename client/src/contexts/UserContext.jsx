@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '../services/supabase';
+import { supabase } from '../lib/supabase';
 
 const UserContext = createContext();
 
@@ -13,12 +13,15 @@ export function UserProvider({ children }) {
     // Initial session check
     const initializeAuth = async () => {
       try {
+        console.log('Initializing auth...');
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        console.log('Initial session:', session);
         
         if (sessionError) throw sessionError;
         
-        if (session) {
-          await getUser(session.user);
+        if (session?.user) {
+          console.log('Setting user from session:', session.user);
+          setUser(session.user);
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
@@ -32,13 +35,16 @@ export function UserProvider({ children }) {
 
     // Subscribe to auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event, session);
+      
       if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
         if (session?.user) {
-          await getUser(session.user);
+          console.log('Setting user from auth state change:', session.user);
+          setUser(session.user);
         }
       } else if (event === 'SIGNED_OUT') {
+        console.log('Clearing user on sign out');
         setUser(null);
-        setProfile(null);
       }
     });
 

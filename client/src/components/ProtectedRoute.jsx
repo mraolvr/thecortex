@@ -7,10 +7,15 @@ const ProtectedRoute = memo(function ProtectedRoute({ children }) {
   const location = useLocation();
 
   useEffect(() => {
-    console.log('ProtectedRoute - State updated:', { user, isLoading, path: location.pathname });
+    console.log('ProtectedRoute - State updated:', { 
+      user: user ? 'present' : 'null', 
+      isLoading, 
+      path: location.pathname 
+    });
   }, [user, isLoading, location.pathname]);
 
-  if (isLoading) {
+  // Show loading spinner only during initial load
+  if (isLoading && !user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -18,11 +23,13 @@ const ProtectedRoute = memo(function ProtectedRoute({ children }) {
     );
   }
 
-  if (!user) {
+  // If not loading and no user, redirect to login
+  if (!isLoading && !user) {
     console.log('No user found, redirecting to login');
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  // If we have a user or we're still loading with a user, show the protected content
   return children;
 });
 

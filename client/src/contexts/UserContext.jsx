@@ -16,6 +16,7 @@ export function UserProvider({ children }) {
     const initializeAuth = async () => {
       try {
         console.log('Initializing auth...');
+        setIsLoading(true);
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         console.log('Initial session:', session);
         
@@ -67,9 +68,13 @@ export function UserProvider({ children }) {
   // Separate effect for profile fetching
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!user) return;
+      if (!user) {
+        setProfile(null);
+        return;
+      }
 
       try {
+        setIsLoading(true);
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('*')
@@ -110,6 +115,8 @@ export function UserProvider({ children }) {
       } catch (error) {
         console.error('Error in fetchProfile:', error);
         setError(error.message);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -118,6 +125,7 @@ export function UserProvider({ children }) {
 
   const updateProfile = async (updates) => {
     try {
+      setIsLoading(true);
       const { error } = await supabase
         .from('profiles')
         .update(updates)
@@ -139,6 +147,8 @@ export function UserProvider({ children }) {
       console.error('Error updating profile:', error);
       setError(error.message);
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 

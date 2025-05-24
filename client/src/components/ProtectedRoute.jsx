@@ -3,12 +3,12 @@ import { useUser } from '../contexts/UserContext';
 import { memo } from 'react';
 
 const ProtectedRoute = memo(function ProtectedRoute({ children }) {
-  const { user, loading } = useUser();
+  const { user, isLoading } = useUser();
   const location = useLocation();
 
-  console.log('ProtectedRoute - Current state:', { user, loading, path: location.pathname });
+  console.log('ProtectedRoute - Current state:', { user, isLoading, path: location.pathname });
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>

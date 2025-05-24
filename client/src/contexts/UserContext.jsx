@@ -6,7 +6,7 @@ const UserContext = createContext();
 export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   // Separate effect for initial session check
@@ -27,7 +27,7 @@ export function UserProvider({ children }) {
         console.error('Error initializing auth:', error);
         setError(error.message);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
@@ -138,10 +138,10 @@ export function UserProvider({ children }) {
   const value = useMemo(() => ({
     user,
     profile,
-    loading,
+    isLoading,
     error,
     updateProfile
-  }), [user, profile, loading, error]);
+  }), [user, profile, isLoading, error]);
 
   return (
     <UserContext.Provider value={value}>

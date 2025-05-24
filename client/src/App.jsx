@@ -21,6 +21,8 @@ import NotificationsPage from './pages/notifications/NotificationsPage';
 import HelpPage from './pages/help/HelpPage';
 import LogoutPage from './pages/logout/LogoutPage';
 import NotFoundPage from './pages/not-found/NotFoundPage';
+import { Toaster } from 'react-hot-toast';
+import AuthCallback from './pages/auth/AuthCallback';
 
 const GOOGLE_CLIENT_ID = '578947614910-3f4lurnl9e2s4l11efp2rn5ihh388lmc.apps.googleusercontent.com';
 
@@ -30,6 +32,7 @@ function App() {
       <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
         <UserProvider>
           <Router future={{ v7_relativeSplatPath: true, v7_startTransition: true }}>
+            <Toaster position="top-right" />
             <div className="min-h-screen text-white bg-gradient-to-br from-violet-600 via-fuchsia-500 via-40% to-emerald-500 dark:bg-gradient-to-br dark:from-violet-950 dark:via-fuchsia-900 dark:via-40% dark:to-emerald-900">
               <div className="relative min-h-screen">
                 {/* Main content */}
@@ -60,21 +63,40 @@ function App() {
                     <main className="p-6 md:p-8 lg:p-12">
                       <div className="max-w-[1600px] mx-auto">
                         <Routes>
-                          <Route path="/login" element={<Login />} />
-                          <Route path="/auth/login" element={<Login />} />
-                          <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-                          <Route path="/guidance" element={<ProtectedRoute><GuidanceHub /></ProtectedRoute>} />
-                          <Route path="/work" element={<ProtectedRoute><WorkHub /></ProtectedRoute>} />
-                  
+                          <Route path="/" element={
+                            <ProtectedRoute>
+                              <Dashboard />
+                            </ProtectedRoute>
+                          } />
+                          <Route path="/guidance" element={
+                            <ProtectedRoute>
+                              <GuidanceHub />
+                            </ProtectedRoute>
+                          } />
+                          <Route path="/work" element={
+                            <ProtectedRoute>
+                              <WorkHub />
+                            </ProtectedRoute>
+                          } />
                           <Route path="/books" element={<ProtectedRoute><BookLibrary /></ProtectedRoute>} />
                           <Route path="/creative" element={<ProtectedRoute><CreativeHub /></ProtectedRoute>} />
                           <Route path="/vault" element={<ProtectedRoute><Vault /></ProtectedRoute>} />
-                          <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
+                          <Route path="/calendar" element={
+                            <ProtectedRoute>
+                              <CalendarPage />
+                            </ProtectedRoute>
+                          } />
                           <Route path="/contacts" element={<ProtectedRoute><Contacts /></ProtectedRoute>} />
-                          <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+                          <Route path="/settings" element={
+                            <ProtectedRoute>
+                              <SettingsPage />
+                            </ProtectedRoute>
+                          } />
                           <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
                           <Route path="/help" element={<ProtectedRoute><HelpPage /></ProtectedRoute>} />
                           <Route path="/logout" element={<ProtectedRoute><LogoutPage /></ProtectedRoute>} />
+                          <Route path="/login" element={<Login />} />
+                          <Route path="/auth/callback" element={<AuthCallback />} />
                           <Route path="*" element={<ProtectedRoute><NotFoundPage /></ProtectedRoute>} />
                         </Routes>
                       </div>

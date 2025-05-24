@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../../services/supabase';
-import GlowingEffect from '../../components/ui/GlowingEffect';
 import { useUser } from '../../contexts/UserContext';
+import { supabase } from '../../lib/supabaseClient';
+import GlowingEffect from '../../components/ui/GlowingEffect';
 
 const GoogleIcon = () => (
   <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -27,63 +27,41 @@ const GoogleIcon = () => (
 
 export default function Login() {
   const navigate = useNavigate();
-  const { user } = useUser();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const { user, loading } = useUser();
 
   useEffect(() => {
-    // Check for existing session
-    const checkSession = async () => {
-      try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError) throw sessionError;
-        
-        if (session) {
-          // Check if we have the necessary Google Calendar scope
-          const hasCalendarScope = session.provider_token?.scope?.includes('https://www.googleapis.com/auth/calendar');
-          
-          if (hasCalendarScope) {
-            window.location.href = "https://thecortex.netlify.app";
-          } else {
-            // If we don't have calendar scope, we need to re-authenticate
-            handleGoogleLogin();
-          }
-        }
-      } catch (error) {
-        console.error('Error checking session:', error);
-        setError(error.message);
-      }
-    };
-
-    checkSession();
-  }, []);
+    if (user && !loading) {
+      navigate('/');
+    }
+  }, [user, loading, navigate]);
 
   const handleGoogleLogin = async () => {
     try {
-      setLoading(true);
-      setError(null);
-      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: 'https://thecortex.netlify.app/dashboard',
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
-            scope: 'email profile https://www.googleapis.com/auth/calendar',
-          },
+            scope: 'https://www.googleapis.com/auth/calendar'
+          }
         }
       });
 
       if (error) throw error;
     } catch (error) {
-      console.error('Error signing in with Google:', error);
-      setError(error.message);
-    } finally {
-      setLoading(false);
+      console.error('Error logging in with Google:', error);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -93,19 +71,12 @@ export default function Login() {
           <p className="text-neutral">Sign in to access your workspace</p>
         </div>
 
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-lg mb-6">
-            {error}
-          </div>
-        )}
-
         <button
           onClick={handleGoogleLogin}
-          disabled={loading}
           className="w-full bg-white text-gray-900 hover:bg-gray-100 px-4 py-3 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <GoogleIcon />
-          {loading ? 'Signing in...' : 'Continue with Google'}
+          Continue with Google
         </button>
 
         <p className="text-center text-neutral mt-6 text-sm">

@@ -9,8 +9,10 @@ export function UserProvider({ children }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Separate effect for initial session check
+  // Single effect to handle both initial session and auth state changes
   useEffect(() => {
+    let mounted = true;
+
     const initializeAuth = async () => {
       try {
         console.log('Initializing auth...');
@@ -19,27 +21,29 @@ export function UserProvider({ children }) {
         
         if (sessionError) throw sessionError;
         
-        if (session?.user) {
+        if (mounted && session?.user) {
           console.log('Setting user from session:', session.user);
           setUser(session.user);
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
-        setError(error.message);
+        if (mounted) {
+          setError(error.message);
+        }
       } finally {
-        setIsLoading(false);
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
     };
 
-    initializeAuth();
-  }, []); // Empty dependency array since this should only run once
-
-  // Separate effect for auth state changes
-  useEffect(() => {
+    // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event, session);
       
-      if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
+      if (!mounted) return;
+
+      if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'INITIAL_SESSION') {
         if (session?.user) {
           console.log('Setting user from auth state change:', session.user);
           setUser(session.user);
@@ -51,7 +55,11 @@ export function UserProvider({ children }) {
       }
     });
 
+    // Initialize auth
+    initializeAuth();
+
     return () => {
+      mounted = false;
       subscription?.unsubscribe();
     };
   }, []); // Empty dependency array since we only want to set up the subscription once

@@ -1,12 +1,14 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useUser } from '../contexts/UserContext';
-import { memo } from 'react';
+import { memo, useEffect } from 'react';
 
 const ProtectedRoute = memo(function ProtectedRoute({ children }) {
   const { user, isLoading } = useUser();
   const location = useLocation();
 
-  console.log('ProtectedRoute - Current state:', { user, isLoading, path: location.pathname });
+  useEffect(() => {
+    console.log('ProtectedRoute - State updated:', { user, isLoading, path: location.pathname });
+  }, [user, isLoading, location.pathname]);
 
   if (isLoading) {
     return (

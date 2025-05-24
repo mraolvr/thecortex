@@ -9,8 +9,8 @@ export function UserProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Separate effect for initial session check
   useEffect(() => {
-    // Initial session check
     const initializeAuth = async () => {
       try {
         console.log('Initializing auth...');
@@ -32,8 +32,10 @@ export function UserProvider({ children }) {
     };
 
     initializeAuth();
+  }, []); // Empty dependency array since this should only run once
 
-    // Subscribe to auth changes
+  // Separate effect for auth state changes
+  useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event, session);
       
@@ -45,61 +47,66 @@ export function UserProvider({ children }) {
       } else if (event === 'SIGNED_OUT') {
         console.log('Clearing user on sign out');
         setUser(null);
+        setProfile(null);
       }
     });
 
     return () => {
       subscription?.unsubscribe();
     };
-  }, []);
+  }, []); // Empty dependency array since we only want to set up the subscription once
 
-  const getUser = async (userData) => {
-    try {
-      setUser(userData);
-      
-      // Get user profile
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userData.id)
-        .single();
-      
-      if (profileError) {
-        console.error('Error fetching profile:', profileError);
-        // If profile doesn't exist, create it
-        if (profileError.code === 'PGRST116') {
-          const { error: insertError } = await supabase
-            .from('profiles')
-            .insert({
-              id: userData.id,
-              email: userData.email,
-              full_name: userData.user_metadata?.full_name || userData.user_metadata?.name,
-              avatar_url: userData.user_metadata?.avatar_url
-            });
-          
-          if (insertError) {
-            console.error('Error creating profile:', insertError);
-          } else {
-            // Fetch the newly created profile
-            const { data: newProfile } = await supabase
+  // Separate effect for profile fetching
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+
+      try {
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+        
+        if (profileError) {
+          console.error('Error fetching profile:', profileError);
+          // If profile doesn't exist, create it
+          if (profileError.code === 'PGRST116') {
+            const { error: insertError } = await supabase
               .from('profiles')
-              .select('*')
-              .eq('id', userData.id)
-              .single();
+              .insert({
+                id: user.id,
+                email: user.email,
+                full_name: user.user_metadata?.full_name || user.user_metadata?.name,
+                avatar_url: user.user_metadata?.avatar_url
+              });
             
-            if (newProfile) {
-              setProfile(newProfile);
+            if (insertError) {
+              console.error('Error creating profile:', insertError);
+            } else {
+              // Fetch the newly created profile
+              const { data: newProfile } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', user.id)
+                .single();
+              
+              if (newProfile) {
+                setProfile(newProfile);
+              }
             }
           }
+        } else {
+          setProfile(profile);
         }
-      } else {
-        setProfile(profile);
+      } catch (error) {
+        console.error('Error in fetchProfile:', error);
+        setError(error.message);
       }
-    } catch (error) {
-      console.error('Error in getUser:', error);
-      setError(error.message);
-    }
-  };
+    };
+
+    fetchProfile();
+  }, [user]); // Only run when user changes
 
   const updateProfile = async (updates) => {
     try {
@@ -111,7 +118,15 @@ export function UserProvider({ children }) {
       if (error) throw error;
 
       // Refresh profile data
-      await getUser(user);
+      const { data: updatedProfile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (updatedProfile) {
+        setProfile(updatedProfile);
+      }
     } catch (error) {
       console.error('Error updating profile:', error);
       setError(error.message);
@@ -124,8 +139,7 @@ export function UserProvider({ children }) {
     profile,
     loading,
     error,
-    updateProfile,
-    refreshUser: () => user && getUser(user)
+    updateProfile
   };
 
   return (

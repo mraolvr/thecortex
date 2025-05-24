@@ -9,22 +9,41 @@ export default function AuthCallback() {
     const handleAuthCallback = async () => {
       try {
         console.log('Starting auth callback...');
-        const { data: { session }, error } = await supabase.auth.getSession();
         
-        console.log('Session data:', session);
-        console.log('Error if any:', error);
-        
+        // Get the hash fragment from the URL
+        const hash = window.location.hash;
+        console.log('URL hash:', hash);
+
+        // Handle the OAuth callback
+        const { data, error } = await supabase.auth.getSession();
+        console.log('Initial session check:', data, error);
+
         if (error) {
           console.error('Auth error:', error);
           throw error;
         }
-        
-        if (session) {
+
+        // If we have a session, redirect to dashboard
+        if (data?.session) {
           console.log('Session found, redirecting to dashboard...');
           navigate('/dashboard');
         } else {
-          console.log('No session found, redirecting to login...');
-          navigate('/login');
+          // Try to exchange the code for a session
+          const { data: { session }, error: exchangeError } = await supabase.auth.exchangeCodeForSession(hash);
+          console.log('Exchange result:', session, exchangeError);
+
+          if (exchangeError) {
+            console.error('Exchange error:', exchangeError);
+            throw exchangeError;
+          }
+
+          if (session) {
+            console.log('Session created, redirecting to dashboard...');
+            navigate('/dashboard');
+          } else {
+            console.log('No session created, redirecting to login...');
+            navigate('/login');
+          }
         }
       } catch (error) {
         console.error('Auth callback error:', error.message);
@@ -41,3 +60,4 @@ export default function AuthCallback() {
     </div>
   );
 }
+

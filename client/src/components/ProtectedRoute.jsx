@@ -1,16 +1,20 @@
 import { Navigate } from 'react-router-dom';
 import { useUser } from '../contexts/UserContext';
-import { useEffect } from 'react';
+import { useEffect, memo, useCallback } from 'react';
 
-export default function ProtectedRoute({ children }) {
+const ProtectedRoute = memo(function ProtectedRoute({ children }) {
   const { user, isLoading } = useUser();
 
-  useEffect(() => {
+  const logState = useCallback(() => {
     console.log('ProtectedRoute state:', {
       user: user ? 'present' : 'null',
       isLoading
     });
   }, [user, isLoading]);
+
+  useEffect(() => {
+    logState();
+  }, [logState]);
 
   // Show loading spinner only during initial load when there's no user
   if (isLoading && !user) {
@@ -28,4 +32,6 @@ export default function ProtectedRoute({ children }) {
 
   // If we have a user or we're still loading with a user, show the protected content
   return children;
-} 
+});
+
+export default ProtectedRoute; 

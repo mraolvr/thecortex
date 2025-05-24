@@ -1,40 +1,31 @@
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useUser } from '../contexts/UserContext';
-import { memo, useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
 
-const ProtectedRoute = memo(function ProtectedRoute({ children }) {
+export default function ProtectedRoute({ children }) {
   const { user, isLoading } = useUser();
-  const location = useLocation();
-
-  const logState = useCallback(() => {
-    console.log('ProtectedRoute - State updated:', { 
-      user: user ? 'present' : 'null', 
-      isLoading, 
-      path: location.pathname 
-    });
-  }, [user, isLoading, location.pathname]);
 
   useEffect(() => {
-    logState();
-  }, [logState]);
+    console.log('ProtectedRoute state:', {
+      user: user ? 'present' : 'null',
+      isLoading
+    });
+  }, [user, isLoading]);
 
-  // Show loading spinner only during initial load
+  // Show loading spinner only during initial load when there's no user
   if (isLoading && !user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary" />
       </div>
     );
   }
 
-  // If not loading and no user, redirect to login
+  // Redirect to login if not loading and no user found
   if (!isLoading && !user) {
-    console.log('No user found, redirecting to login');
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to="/login" replace />;
   }
 
   // If we have a user or we're still loading with a user, show the protected content
   return children;
-});
-
-export default ProtectedRoute; 
+} 

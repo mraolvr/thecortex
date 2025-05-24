@@ -15,14 +15,14 @@ const GoogleIcon = () => (
 
 export default function Login() {
   const navigate = useNavigate();
-  const { user, loading } = useUser();
+  const { user, isLoading } = useUser();
 
   // Redirect authenticated users away from login screen
   useEffect(() => {
-    if (user && !loading) {
+    if (user && !isLoading) {
       navigate('/');
     }
-  }, [user, loading, navigate]);
+  }, [user, isLoading, navigate]);
 
   const handleGoogleLogin = async () => {
     try {
@@ -46,39 +46,28 @@ export default function Login() {
         throw error;
       }
     } catch (error) {
-      console.error('Google login failed:', error.message || error);
-      alert('There was an issue signing in with Google. Please try again.');
+      console.error('Login error:', error);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary" />
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <GlowingEffect className="bg-surface p-8 rounded-xl w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2">Welcome to Cortex</h1>
-          <p className="text-neutral">Sign in to access your workspace</p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-600 via-fuchsia-500 via-40% to-emerald-500 dark:bg-gradient-to-br dark:from-violet-950 dark:via-fuchsia-900 dark:via-40% dark:to-emerald-900">
+      <div className="w-full max-w-md p-8 space-y-8 bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-white mb-2">Welcome Back</h1>
+          <p className="text-white/80">Sign in to continue to The Cortex</p>
         </div>
 
-        <button
-          onClick={handleGoogleLogin}
-          className="w-full bg-white text-gray-900 hover:bg-gray-100 px-4 py-3 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <GoogleIcon />
-          Continue with Google
-        </button>
-
-        <p className="text-center text-neutral mt-6 text-sm">
-          By signing in, you agree to our Terms of Service and Privacy Policy.
-        </p>
-      </GlowingEffect>
+        <div className="space-y-4">
+          <button
+            onClick={handleGoogleLogin}
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            <GoogleIcon />
+            <span>Continue with Google</span>
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

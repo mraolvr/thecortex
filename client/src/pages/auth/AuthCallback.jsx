@@ -1,57 +1,37 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '../../contexts/UserContext';
 import { supabase } from '../../lib/supabase';
 
 export default function AuthCallback() {
   const navigate = useNavigate();
+  const { user, isLoading } = useUser();
 
   useEffect(() => {
-    const handleAuthCallback = async () => {
+    const checkSession = async () => {
       try {
-        console.log('Starting auth callback...');
+        const { data: { session }, error } = await supabase.auth.getSession();
         
-        // Get the hash fragment from the URL
-        const hash = window.location.hash;
-        console.log('URL hash:', hash);
-
-        // First try to get the session
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        console.log('Initial session check:', session, sessionError);
-
-        if (sessionError) {
-          console.error('Session error:', sessionError);
-          throw sessionError;
-        }
-
-        if (session) {
-          console.log('Session found, redirecting to dashboard...');
-          navigate('/dashboard');
+        if (error) {
+          console.error('Error checking session:', error);
+          navigate('/login');
           return;
         }
 
-        // If no session, try to handle the OAuth callback
-        const { data, error } = await supabase.auth.getUser();
-        console.log('User data:', data, error);
-
-        if (error) {
-          console.error('User error:', error);
-          throw error;
-        }
-
-        if (data?.user) {
-          console.log('User found, redirecting to dashboard...');
-          navigate('/dashboard');
+        if (session) {
+          console.log('Session found, redirecting to home');
+          navigate('/');
         } else {
-          console.log('No user found, redirecting to login...');
+          console.log('No session found, redirecting to login');
           navigate('/login');
         }
       } catch (error) {
-        console.error('Auth callback error:', error.message);
+        console.error('Error in auth callback:', error);
         navigate('/login');
       }
     };
 
-    handleAuthCallback();
+    checkSession();
   }, [navigate]);
 
   return (

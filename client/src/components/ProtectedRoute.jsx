@@ -1,18 +1,22 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useUser } from '../contexts/UserContext';
-import { memo, useEffect } from 'react';
+import { memo, useEffect, useCallback } from 'react';
 
 const ProtectedRoute = memo(function ProtectedRoute({ children }) {
   const { user, isLoading } = useUser();
   const location = useLocation();
 
-  useEffect(() => {
+  const logState = useCallback(() => {
     console.log('ProtectedRoute - State updated:', { 
       user: user ? 'present' : 'null', 
       isLoading, 
       path: location.pathname 
     });
   }, [user, isLoading, location.pathname]);
+
+  useEffect(() => {
+    logState();
+  }, [logState]);
 
   // Show loading spinner only during initial load
   if (isLoading && !user) {

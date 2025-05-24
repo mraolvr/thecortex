@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 
 const UserContext = createContext();
@@ -8,6 +8,12 @@ export function UserProvider({ children }) {
   const [profile, setProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Memoized function to set user state
+  const setUserState = useCallback((newUser) => {
+    console.log('Setting user state:', newUser ? 'user present' : 'null');
+    setUser(newUser);
+  }, []);
 
   // Single effect to handle both initial session and auth state changes
   useEffect(() => {
@@ -24,7 +30,7 @@ export function UserProvider({ children }) {
         
         if (mounted && session?.user) {
           console.log('Setting user from session:', session.user);
-          setUser(session.user);
+          setUserState(session.user);
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
@@ -47,11 +53,11 @@ export function UserProvider({ children }) {
       if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'INITIAL_SESSION') {
         if (session?.user) {
           console.log('Setting user from auth state change:', session.user);
-          setUser(session.user);
+          setUserState(session.user);
         }
       } else if (event === 'SIGNED_OUT') {
         console.log('Clearing user on sign out');
-        setUser(null);
+        setUserState(null);
         setProfile(null);
       }
     });
@@ -63,10 +69,12 @@ export function UserProvider({ children }) {
       mounted = false;
       subscription?.unsubscribe();
     };
-  }, []); // Empty dependency array since we only want to set up the subscription once
+  }, [setUserState]); // Add setUserState to dependencies
 
   // Separate effect for profile fetching
   useEffect(() => {
+    let mounted = true;
+
     const fetchProfile = async () => {
       if (!user) {
         setProfile(null);
@@ -81,6 +89,8 @@ export function UserProvider({ children }) {
           .eq('id', user.id)
           .single();
         
+        if (!mounted) return;
+
         if (profileError) {
           console.error('Error fetching profile:', profileError);
           // If profile doesn't exist, create it
@@ -104,23 +114,31 @@ export function UserProvider({ children }) {
                 .eq('id', user.id)
                 .single();
               
-              if (newProfile) {
+              if (mounted && newProfile) {
                 setProfile(newProfile);
               }
             }
           }
-        } else {
+        } else if (mounted) {
           setProfile(profile);
         }
       } catch (error) {
         console.error('Error in fetchProfile:', error);
-        setError(error.message);
+        if (mounted) {
+          setError(error.message);
+        }
       } finally {
-        setIsLoading(false);
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchProfile();
+
+    return () => {
+      mounted = false;
+    };
   }, [user]); // Only run when user changes
 
   const updateProfile = async (updates) => {

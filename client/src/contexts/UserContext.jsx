@@ -11,6 +11,7 @@ export function UserProvider({ children }) {
 
   const setUserState = useCallback((newUser) => {
     if (mounted) {
+      console.log('Setting user state:', newUser ? 'user present' : 'null');
       setUser(newUser);
       if (!newUser) {
         setProfile(null);
@@ -22,19 +23,53 @@ export function UserProvider({ children }) {
     if (!userId) return;
     
     try {
+      console.log('Fetching profile for user:', userId);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching profile:', error);
+        // If profile doesn't exist, create it
+        if (error.code === 'PGRST116') {
+          const { data: userData } = await supabase.auth.getUser();
+          if (userData?.user) {
+            const { error: insertError } = await supabase
+              .from('profiles')
+              .insert({
+                id: userId,
+                email: userData.user.email,
+                full_name: userData.user.user_metadata?.full_name || userData.user.user_metadata?.name,
+                avatar_url: userData.user.user_metadata?.avatar_url
+              });
+            
+            if (insertError) {
+              console.error('Error creating profile:', insertError);
+            } else {
+              // Fetch the newly created profile
+              const { data: newProfile } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', userId)
+                .single();
+              
+              if (mounted && newProfile) {
+                setProfile(newProfile);
+              }
+            }
+          }
+        }
+        return;
+      }
       
       if (mounted) {
+        console.log('Profile fetched successfully');
         setProfile(data);
       }
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      console.error('Error in fetchProfile:', error);
     } finally {
       if (mounted) {
         setIsLoading(false);
@@ -77,12 +112,17 @@ export function UserProvider({ children }) {
         setIsLoading(true);
         const { data: { session }, error } = await supabase.auth.getSession();
         
-        if (error) throw error;
+        if (error) {
+          console.error('Error getting session:', error);
+          throw error;
+        }
         
         if (session?.user) {
+          console.log('Initial session found:', session.user.id);
           setUserState(session.user);
           await fetchProfile(session.user.id);
         } else {
+          console.log('No initial session found');
           setUserState(null);
         }
       } catch (error) {
@@ -102,10 +142,12 @@ export function UserProvider({ children }) {
       
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
         if (session?.user) {
+          console.log('Setting user from auth state change');
           setUserState(session.user);
           await fetchProfile(session.user.id);
         }
       } else if (event === 'SIGNED_OUT') {
+        console.log('Clearing user on sign out');
         setUserState(null);
       }
     });

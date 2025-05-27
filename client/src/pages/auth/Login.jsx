@@ -26,7 +26,10 @@ export default function Login() {
 
   const handleGoogleLogin = async () => {
     try {
-      console.log('Starting Google login...');
+      console.log('[Login] Starting Google login...');
+      console.log('[Login] Current origin:', window.location.origin);
+      console.log('[Login] Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
+      
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -39,14 +42,15 @@ export default function Login() {
         }
       });
 
-      console.log('OAuth response:', data);
+      console.log('[Login] OAuth response:', data);
+      console.log('[Login] Redirect URL:', `${window.location.origin}/auth/callback`);
       
       if (error) {
-        console.error('Google login error:', error);
+        console.error('[Login] Google login error:', error);
         throw error;
       }
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('[Login] Login error:', error);
     }
   };
 

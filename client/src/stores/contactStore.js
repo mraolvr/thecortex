@@ -2,14 +2,14 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { supabase } from '../lib/supabase';
 
-const useVaultStore = create(
+const useContactStore = create(
   persist(
     (set, get) => ({
-      vaultItems: [],
+      contacts: [],
       isLoading: false,
       error: null,
 
-      fetchVaultItems: async () => {
+      fetchContacts: async () => {
         set({ isLoading: true });
         try {
           // Get the current user
@@ -25,22 +25,22 @@ const useVaultStore = create(
             throw new Error('User not authenticated');
           }
 
-          console.log('Fetching vault items for user:', user.id);
+          console.log('Fetching contacts for user:', user.id);
           const { data, error } = await supabase
-            .from('vault_items')
+            .from('contacts')
             .select('*')
             .eq('user_id', user.id)
             .order('created_at', { ascending: false });
 
           if (error) throw error;
-          set({ vaultItems: data || [], isLoading: false, error: null });
+          set({ contacts: data || [], isLoading: false, error: null });
         } catch (error) {
-          console.error('Error fetching vault items:', error);
+          console.error('Error fetching contacts:', error);
           set({ isLoading: false, error: error.message });
         }
       },
 
-      addVaultItem: async (item) => {
+      addContact: async (contact) => {
         set({ isLoading: true });
         try {
           // Get the current user
@@ -57,9 +57,9 @@ const useVaultStore = create(
           }
 
           const { data, error } = await supabase
-            .from('vault_items')
+            .from('contacts')
             .insert([{
-              ...item,
+              ...contact,
               user_id: user.id,
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
@@ -69,23 +69,23 @@ const useVaultStore = create(
 
           if (error) throw error;
           set((state) => ({
-            vaultItems: [data, ...state.vaultItems],
+            contacts: [data, ...state.contacts],
             isLoading: false,
             error: null
           }));
           return data;
         } catch (error) {
-          console.error('Error adding vault item:', error);
+          console.error('Error adding contact:', error);
           set({ isLoading: false, error: error.message });
           return undefined;
         }
       },
 
-      updateVaultItem: async (id, updates) => {
+      updateContact: async (id, updates) => {
         set({ isLoading: true });
         try {
           const { data, error } = await supabase
-            .from('vault_items')
+            .from('contacts')
             .update({
               ...updates,
               updated_at: new Date().toISOString()
@@ -96,47 +96,47 @@ const useVaultStore = create(
 
           if (error) throw error;
           set((state) => ({
-            vaultItems: state.vaultItems.map(item => 
-              item.id === id ? { ...item, ...data } : item
+            contacts: state.contacts.map(contact => 
+              contact.id === id ? { ...contact, ...data } : contact
             ),
             isLoading: false,
             error: null
           }));
           return data;
         } catch (error) {
-          console.error('Error updating vault item:', error);
+          console.error('Error updating contact:', error);
           set({ isLoading: false, error: error.message });
           return undefined;
         }
       },
 
-      deleteVaultItem: async (id) => {
+      deleteContact: async (id) => {
         set({ isLoading: true });
         try {
           const { error } = await supabase
-            .from('vault_items')
+            .from('contacts')
             .delete()
             .eq('id', id);
 
           if (error) throw error;
           set((state) => ({
-            vaultItems: state.vaultItems.filter(item => item.id !== id),
+            contacts: state.contacts.filter(contact => contact.id !== id),
             isLoading: false,
             error: null
           }));
         } catch (error) {
-          console.error('Error deleting vault item:', error);
+          console.error('Error deleting contact:', error);
           set({ isLoading: false, error: error.message });
         }
       }
     }),
     {
-      name: 'vault-storage',
+      name: 'contact-storage',
       partialize: (state) => ({
-        vaultItems: state.vaultItems
+        contacts: state.contacts
       })
     }
   )
 );
 
-export default useVaultStore; 
+export default useContactStore; 

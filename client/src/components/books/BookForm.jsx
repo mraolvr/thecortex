@@ -20,7 +20,8 @@ export default function BookForm({ book, onSubmit, onClose }) {
     rating: 0,
     start_date: '',
     last_read_date: '',
-    completed_date: ''
+    completed_date: '',
+    reading_sessions: []
   });
   const [searchResults, setSearchResults] = useState({
     title: [],
@@ -46,7 +47,8 @@ export default function BookForm({ book, onSubmit, onClose }) {
         rating: book.rating || 0,
         start_date: book.start_date || '',
         last_read_date: book.last_read_date || '',
-        completed_date: book.completed_date || ''
+        completed_date: book.completed_date || '',
+        reading_sessions: book.reading_sessions || []
       });
     }
   }, [book]);
@@ -120,7 +122,12 @@ export default function BookForm({ book, onSubmit, onClose }) {
       ...formData,
       total_pages: totalPages,
       current_page: Math.min(currentPage, totalPages), // Ensure current page doesn't exceed total
-      progress: totalPages ? Math.round((currentPage / totalPages) * 100) : 0
+      progress: totalPages ? Math.round((currentPage / totalPages) * 100) : 0,
+      categories: Array.isArray(formData.categories) ? formData.categories : [],
+      custom_categories: Array.isArray(formData.custom_categories) ? formData.custom_categories : [],
+      reading_sessions: Array.isArray(formData.reading_sessions) ? formData.reading_sessions : [],
+      notes: Array.isArray(formData.notes) ? formData.notes : [],
+      rating: Array.isArray(formData.rating) ? formData.rating : []
     });
   };
 
@@ -244,7 +251,6 @@ export default function BookForm({ book, onSubmit, onClose }) {
               value={formData.total_pages}
               onChange={(e) => setFormData({ ...formData, total_pages: e.target.value })}
               className="w-full px-3 py-2 bg-background rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-              required
             />
           </div>
 
@@ -285,7 +291,6 @@ export default function BookForm({ book, onSubmit, onClose }) {
               value={formData.synopsis}
               onChange={(e) => setFormData({ ...formData, synopsis: e.target.value })}
               className="w-full px-3 py-2 bg-background rounded-lg focus:outline-none focus:ring-2 focus:ring-primary h-32 resize-none"
-              required
             />
           </div>
 

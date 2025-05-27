@@ -36,6 +36,7 @@ export function UserProvider({ children }) {
         if (error.code === 'PGRST116') {
           const { data: userData } = await supabase.auth.getUser();
           if (userData?.user) {
+            console.log('Creating new profile for user:', userData.user.id);
             const { error: insertError } = await supabase
               .from('profiles')
               .insert({
@@ -63,6 +64,7 @@ export function UserProvider({ children }) {
             }
             
             if (mounted && newProfile) {
+              console.log('New profile created and fetched:', newProfile);
               setProfile(newProfile);
             }
           }
@@ -71,7 +73,7 @@ export function UserProvider({ children }) {
       }
       
       if (mounted) {
-        console.log('Profile fetched successfully');
+        console.log('Profile fetched successfully:', data);
         setProfile(data);
       }
     } catch (error) {
@@ -88,6 +90,7 @@ export function UserProvider({ children }) {
 
     try {
       setIsLoading(true);
+      console.log('Updating profile for user:', user.id, 'with updates:', updates);
       const { data, error } = await supabase
         .from('profiles')
         .update(updates)
@@ -101,6 +104,7 @@ export function UserProvider({ children }) {
       }
       
       if (mounted && data) {
+        console.log('Profile updated successfully:', data);
         setProfile(data);
       }
     } catch (error) {

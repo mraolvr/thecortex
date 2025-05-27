@@ -47,17 +47,23 @@ export function UserProvider({ children }) {
             
             if (insertError) {
               console.error('Error creating profile:', insertError);
-            } else {
-              // Fetch the newly created profile
-              const { data: newProfile } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', userId)
-                .single();
-              
-              if (mounted && newProfile) {
-                setProfile(newProfile);
-              }
+              return;
+            }
+            
+            // Fetch the newly created profile
+            const { data: newProfile, error: fetchError } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', userId)
+              .single();
+            
+            if (fetchError) {
+              console.error('Error fetching new profile:', fetchError);
+              return;
+            }
+            
+            if (mounted && newProfile) {
+              setProfile(newProfile);
             }
           }
         }
@@ -89,9 +95,12 @@ export function UserProvider({ children }) {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error updating profile:', error);
+        throw error;
+      }
       
-      if (mounted) {
+      if (mounted && data) {
         setProfile(data);
       }
     } catch (error) {

@@ -7,6 +7,7 @@ import {
 import useVaultStore from '../../stores/vaultStore';
 import Card from '../../components/ui/Card';
 import SectionHeader from '../../components/ui/SectionHeader';
+import Button from '../../components/ui/Button';
 
 // Sample data
 const sampleVaultItems = [
@@ -257,12 +258,12 @@ export default function Vault() {
             placeholder="Enter passcode..."
             className="w-full bg-background px-4 py-2 rounded-lg border border-surface focus:outline-none focus:border-primary mb-4"
           />
-          <button
+          <Button
             onClick={handleUnlock}
             className="w-full bg-primary hover:bg-primary-light text-white px-4 py-2 rounded-lg transition-colors"
           >
             Unlock
-          </button>
+          </Button>
         </GlowingEffect>
       </div>
     );
@@ -288,12 +289,12 @@ export default function Vault() {
             />
             <Search className="absolute left-3 top-2.5 w-5 h-5 text-neutral" />
           </div>
-          <button
+          <Button
             onClick={() => setShowAddModal(true)}
             className="bg-primary hover:bg-primary-light text-white px-4 py-2 rounded-lg transition-colors"
           >
             Add New Item
-          </button>
+          </Button>
         </div>
 
         <div className="grid grid-cols-12 gap-6">
@@ -302,16 +303,16 @@ export default function Vault() {
             <GlowingEffect className="bg-neutral-1200 p-6 rounded-xl">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold">Categories</h2>
-                <button 
+                <Button 
                   onClick={() => {
                     setEditingCategory(null);
                     setNewCategory({ name: '', icon: 'Shield', color: '#6366f1' });
                     setShowCategoryModal(true);
                   }}
-                  className="text-primary hover:text-primary-light transition-colors"
+                  className="text-primary hover:text-white transition-colors"
                 >
                   <FolderPlus className="w-5 h-5" />
-                </button>
+                </Button>
               </div>
               <div className="space-y-2">
                 {categories.map((category) => {
@@ -331,7 +332,7 @@ export default function Vault() {
                         <span>{category.name}</span>
                         {!category.isDefault && (
                           <div className="flex space-x-1">
-                            <button
+                            <Button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleEditCategory(category);
@@ -339,8 +340,8 @@ export default function Vault() {
                               className="p-1 text-neutral hover:text-primary transition-colors"
                             >
                               <Edit2 className="w-4 h-4" />
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleDeleteCategory(category);
@@ -348,7 +349,7 @@ export default function Vault() {
                               className="p-1 text-neutral hover:text-error transition-colors"
                             >
                               <Trash2 className="w-4 h-4" />
-                            </button>
+                            </Button>
                           </div>
                         )}
                       </div>
@@ -367,12 +368,12 @@ export default function Vault() {
                   <img src="/empty-vault.svg" alt="Empty Vault" className="w-32 h-32 mb-6 opacity-80" />
                   <h3 className="text-2xl font-semibold mb-2 text-neutral-200">Your Vault is Empty</h3>
                   <p className="text-neutral-400 mb-6">Add your first item to get started!</p>
-                  <button
+                  <Button
                     onClick={() => setShowAddModal(true)}
                     className="bg-primary hover:bg-primary-light text-white px-6 py-3 rounded-lg transition-colors text-lg font-medium"
                   >
                     <Plus className="w-5 h-5 inline-block mr-2" /> Add New Item
-                  </button>
+                  </Button>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -393,7 +394,7 @@ export default function Vault() {
                             {getItemIcon(item.category)}
                           </div>
                           <div className="flex-1">
-                            <h3 className="font-semibold text-lg text-neutral-100 truncate flex items-center gap-1">
+                            <h3 className="font-semibold text-lg text-gray-50 truncate flex items-center gap-1">
                               {item.name}
                               {/* Star for favorite/pin (UI only) */}
                               <Star className="w-4 h-4 text-yellow-400 opacity-60 hover:opacity-100 transition-opacity cursor-pointer" title="Pin/Favorite (coming soon)" />
@@ -406,20 +407,20 @@ export default function Vault() {
                         <div className="flex items-center justify-between mt-auto">
                           <span className="text-xs text-neutral-400">Last accessed: {item.updated_at ? new Date(item.updated_at).toLocaleDateString() : 'N/A'}</span>
                           <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button
+                            <Button
                               onClick={e => { e.stopPropagation(); setSelectedItem(item); setIsEditing(true); }}
                               className="p-1 rounded hover:bg-primary/10 text-primary"
                               title="Edit"
                             >
                               <Edit2 className="w-4 h-4" />
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                               onClick={e => { e.stopPropagation(); handleDelete(item.id); }}
                               className="p-1 rounded hover:bg-error/10 text-error"
                               title="Delete"
                             >
                               <Trash2 className="w-4 h-4" />
-                            </button>
+                            </Button>
                           </div>
                         </div>
                       </div>
@@ -440,7 +441,7 @@ export default function Vault() {
               <h2 className="text-xl font-semibold">
                 {editingCategory ? 'Edit Category' : 'Add New Category'}
               </h2>
-              <button
+              <Button
                 onClick={() => {
                   setShowCategoryModal(false);
                   setEditingCategory(null);
@@ -449,7 +450,7 @@ export default function Vault() {
                 className="text-neutral hover:text-error transition-colors"
               >
                 <X className="w-5 h-5" />
-              </button>
+              </Button>
             </div>
             <form onSubmit={(e) => { 
               e.preventDefault(); 
@@ -483,12 +484,12 @@ export default function Vault() {
                     <Palette className="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral pointer-events-none" />
                   </div>
                 </div>
-                <button
+                <Button
                   type="submit"
                   className="w-full bg-primary hover:bg-primary-light text-white px-4 py-2 rounded-lg transition-colors"
                 >
                   {editingCategory ? 'Update Category' : 'Add Category'}
-                </button>
+                </Button>
               </div>
             </form>
           </GlowingEffect>
@@ -501,7 +502,7 @@ export default function Vault() {
           <GlowingEffect className="bg-surface p-6 rounded-xl max-w-md w-full">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">Delete Category</h2>
-              <button
+              <Button
                 onClick={() => {
                   setShowDeleteConfirm(false);
                   setCategoryToDelete(null);
@@ -509,7 +510,7 @@ export default function Vault() {
                 className="text-neutral hover:text-error transition-colors"
               >
                 <X className="w-5 h-5" />
-              </button>
+              </Button>
             </div>
             <div className="space-y-4">
               <div className="flex items-center space-x-2 text-error">
@@ -520,7 +521,7 @@ export default function Vault() {
                 This action cannot be undone. All items in this category will be moved to "All Items".
               </p>
               <div className="flex justify-end space-x-2">
-                <button
+                <Button
                   onClick={() => {
                     setShowDeleteConfirm(false);
                     setCategoryToDelete(null);
@@ -528,13 +529,13 @@ export default function Vault() {
                   className="px-4 py-2 rounded-lg border border-surface hover:bg-background-light transition-colors"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={confirmDeleteCategory}
                   className="bg-error hover:bg-error-light text-white px-4 py-2 rounded-lg transition-colors"
                 >
                   Delete
-                </button>
+                </Button>
               </div>
             </div>
           </GlowingEffect>
@@ -547,12 +548,12 @@ export default function Vault() {
           <GlowingEffect className="bg-surface p-6 rounded-xl max-w-md w-full">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">Add New Item</h2>
-              <button
+              <Button
                 onClick={() => setShowAddModal(false)}
                 className="text-neutral hover:text-error transition-colors"
               >
                 <X className="w-5 h-5" />
-              </button>
+              </Button>
             </div>
             <form onSubmit={(e) => { e.preventDefault(); handleAddItem(); }}>
               <div className="space-y-4">
@@ -596,12 +597,12 @@ export default function Vault() {
                     {newItem.file && <span className="text-sm text-neutral">{newItem.file.name}</span>}
                   </div>
                 )}
-                <button
+                <Button
                   type="submit"
                   className="w-full bg-primary hover:bg-primary-light text-white px-4 py-2 rounded-lg transition-colors"
                 >
                   Add Item
-                </button>
+                </Button>
               </div>
             </form>
           </GlowingEffect>
@@ -614,7 +615,7 @@ export default function Vault() {
           <GlowingEffect className="bg-surface p-6 rounded-xl max-w-md w-full">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">{isEditing ? 'Edit Item' : selectedItem.name}</h2>
-              <button
+              <Button
                 onClick={() => {
                   setSelectedItem(null);
                   setIsEditing(false);
@@ -622,7 +623,7 @@ export default function Vault() {
                 className="text-neutral hover:text-error transition-colors"
               >
                 <X className="w-5 h-5" />
-              </button>
+              </Button>
             </div>
             {isEditing ? (
               <div className="space-y-4">
@@ -647,18 +648,18 @@ export default function Vault() {
                   className="w-full bg-background px-4 py-2 rounded-lg border border-surface focus:outline-none focus:border-primary"
                 />
                 <div className="flex justify-end space-x-2">
-                  <button
+                  <Button
                     onClick={() => handleUpdate(selectedItem.id, selectedItem)}
                     className="bg-primary hover:bg-primary-light text-white px-4 py-2 rounded-lg transition-colors"
                   >
                     Save
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={() => setIsEditing(false)}
                     className="bg-neutral hover:bg-neutral-light text-white px-4 py-2 rounded-lg transition-colors"
                   >
                     Cancel
-                  </button>
+                  </Button>
                 </div>
               </div>
             ) : (
@@ -669,18 +670,18 @@ export default function Vault() {
                   {selectedItem.file_path && <p><strong>File:</strong> {selectedItem.file_path}</p>}
                 </div>
                 <div className="flex justify-end space-x-2">
-                  <button
+                  <Button
                     onClick={() => setIsEditing(true)}
                     className="bg-primary hover:bg-primary-light text-white px-4 py-2 rounded-lg transition-colors"
                   >
                     Edit
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={() => handleDelete(selectedItem.id)}
                     className="bg-error hover:bg-error-light text-white px-4 py-2 rounded-lg transition-colors"
                   >
                     Delete
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}
@@ -689,14 +690,14 @@ export default function Vault() {
       )}
 
       {/* Floating Add Item Button for mobile */}
-      <button
+      <Button
         onClick={() => setShowAddModal(true)}
         className="fixed bottom-8 right-8 z-50 bg-primary hover:bg-primary-light text-white p-4 rounded-full shadow-lg transition-colors block md:hidden"
         style={{ boxShadow: '0 4px 24px rgba(59,130,246,0.25)' }}
         title="Add New Item"
       >
         <Plus className="w-6 h-6" />
-      </button>
+      </Button>
     </div>
   );
 } 

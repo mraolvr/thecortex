@@ -2,547 +2,163 @@
 @tailwind components;
 @tailwind utilities;
 
+@theme inline {
+  --animate-first: moveVertical 30s ease infinite;
+  --animate-second: moveInCircle 20s reverse infinite;
+  --animate-third: moveInCircle 40s linear infinite;
+  --animate-fourth: moveHorizontal 40s ease infinite;
+  --animate-fifth: moveInCircle 20s ease infinite;
+}
+
+@keyframes moveHorizontal {
+  0% {
+    transform: translateX(-50%) translateY(-10%);
+  }
+  50% {
+    transform: translateX(50%) translateY(10%);
+  }
+  100% {
+    transform: translateX(-50%) translateY(-10%);
+  }
+}
+
+@keyframes moveInCircle {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(180deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes moveVertical {
+  0% {
+    transform: translateY(-50%);
+  }
+  50% {
+    transform: translateY(50%);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes gradient-xy {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient-xy {
+  animation: gradient-xy 8s ease infinite;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  body {
+    @apply text-white bg-black;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display text-white;
+  }
+
+  p {
+    @apply text-neutral-200;
+  }
+
+  a {
+    @apply text-white hover:text-neutral-300 transition-colors;
+  }
+
+  input, textarea, select {
+    @apply text-black placeholder-neutral-500 dark:text-white;
+  }
+
+  /* Improve focus styles for accessibility */
+  :focus-visible {
+    @apply outline-none ring-2 ring-white ring-offset-2 ring-offset-black;
+  }
+
+  /* Mobile-specific touch targets */
+  @media (max-width: 768px) {
+    button, 
+    [role="button"],
+    a {
+      min-height: 44px;
+      min-width: 44px;
+    }
+
+    input,
+    select,
+    textarea {
+      font-size: 16px; /* Prevents iOS zoom on focus */
+    }
+  }
+
+  /* Improved scrolling on mobile */
+  .custom-scrollbar {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  /* Prevent text size adjustment */
+  * {
+    -webkit-text-size-adjust: 100%;
+  }
+}
+
 :root {
-  /* Light theme (default) */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f3f4f6;
-  --text-primary: #1f2937;
-  --text-secondary: #4b5563;
-  --accent-blue: #3b82f6;
-  --accent-green: #10b981;
-  --accent-purple: #8b5cf6;
-  --accent-pink: #ec4899;
-  --accent-orange: #f97316;
-  --accent-yellow: #f59e0b;
-  --accent-red: #ef4444;
-  --accent-teal: #14b8a6;
-  --accent-indigo: #6366f1;
-  --accent-cyan: #06b6d4;
-  --accent-lime: #84cc16;
-  --accent-emerald: #059669;
-  --accent-violet: #7c3aed;
-  --accent-fuchsia: #d946ef;
-  --accent-rose: #e11d48;
-  --accent-sky: #0ea5e9;
-  --accent-amber: #fbbf24;
-  --accent-stone: #78716c;
-  --accent-neutral: #737373;
-  --accent-slate: #64748b;
-  --accent-zinc: #71717a;
-  --accent-gray: #6b7280;
-  --accent-slate-50: #f8fafc;
-  --accent-slate-100: #f1f5f9;
-  --accent-slate-200: #e2e8f0;
-  --accent-slate-300: #cbd5e1;
-  --accent-slate-400: #94a3b8;
-  --accent-slate-500: #64748b;
-  --accent-slate-600: #475569;
-  --accent-slate-700: #334155;
-  --accent-slate-800: #1e293b;
-  --accent-slate-900: #0f172a;
-  --accent-slate-950: #020617;
-  --accent-gray-50: #f9fafb;
-  --accent-gray-100: #f3f4f6;
-  --accent-gray-200: #e5e7eb;
-  --accent-gray-300: #d1d5db;
-  --accent-gray-400: #9ca3af;
-  --accent-gray-500: #6b7280;
-  --accent-gray-600: #4b5563;
-  --accent-gray-700: #374151;
-  --accent-gray-800: #1f2937;
-  --accent-gray-900: #111827;
-  --accent-gray-950: #030712;
-  --accent-zinc-50: #fafafa;
-  --accent-zinc-100: #f4f4f5;
-  --accent-zinc-200: #e4e4e7;
-  --accent-zinc-300: #d4d4d8;
-  --accent-zinc-400: #a1a1aa;
-  --accent-zinc-500: #71717a;
-  --accent-zinc-600: #52525b;
-  --accent-zinc-700: #3f3f46;
-  --accent-zinc-800: #27272a;
-  --accent-zinc-900: #18181b;
-  --accent-zinc-950: #09090b;
-  --accent-neutral-50: #fafafa;
-  --accent-neutral-100: #f5f5f5;
-  --accent-neutral-200: #e5e5e5;
-  --accent-neutral-300: #d4d4d4;
-  --accent-neutral-400: #a3a3a3;
-  --accent-neutral-500: #737373;
-  --accent-neutral-600: #525252;
-  --accent-neutral-700: #404040;
-  --accent-neutral-800: #262626;
-  --accent-neutral-900: #171717;
-  --accent-neutral-950: #0a0a0a;
-  --accent-stone-50: #fafaf9;
-  --accent-stone-100: #f5f5f4;
-  --accent-stone-200: #e7e5e4;
-  --accent-stone-300: #d6d3d1;
-  --accent-stone-400: #a8a29e;
-  --accent-stone-500: #78716c;
-  --accent-stone-600: #57534e;
-  --accent-stone-700: #44403c;
-  --accent-stone-800: #292524;
-  --accent-stone-900: #1c1917;
-  --accent-stone-950: #0c0a09;
-  --accent-red-50: #fef2f2;
-  --accent-red-100: #fee2e2;
-  --accent-red-200: #fecaca;
-  --accent-red-300: #fca5a5;
-  --accent-red-400: #f87171;
-  --accent-red-500: #ef4444;
-  --accent-red-600: #dc2626;
-  --accent-red-700: #b91c1c;
-  --accent-red-800: #991b1b;
-  --accent-red-900: #7f1d1d;
-  --accent-red-950: #450a0a;
-  --accent-orange-50: #fff7ed;
-  --accent-orange-100: #ffedd5;
-  --accent-orange-200: #fed7aa;
-  --accent-orange-300: #fdba74;
-  --accent-orange-400: #fb923c;
-  --accent-orange-500: #f97316;
-  --accent-orange-600: #ea580c;
-  --accent-orange-700: #c2410c;
-  --accent-orange-800: #9a3412;
-  --accent-orange-900: #7c2d12;
-  --accent-orange-950: #431407;
-  --accent-amber-50: #fffbeb;
-  --accent-amber-100: #fef3c7;
-  --accent-amber-200: #fde68a;
-  --accent-amber-300: #fcd34d;
-  --accent-amber-400: #fbbf24;
-  --accent-amber-500: #f59e0b;
-  --accent-amber-600: #d97706;
-  --accent-amber-700: #b45309;
-  --accent-amber-800: #92400e;
-  --accent-amber-900: #78350f;
-  --accent-amber-950: #451a03;
-  --accent-yellow-50: #fefce8;
-  --accent-yellow-100: #fef9c3;
-  --accent-yellow-200: #fef08a;
-  --accent-yellow-300: #fde047;
-  --accent-yellow-400: #facc15;
-  --accent-yellow-500: #eab308;
-  --accent-yellow-600: #ca8a04;
-  --accent-yellow-700: #a16207;
-  --accent-yellow-800: #854d0e;
-  --accent-yellow-900: #713f12;
-  --accent-yellow-950: #422006;
-  --accent-lime-50: #f7fee7;
-  --accent-lime-100: #ecfccb;
-  --accent-lime-200: #d9f99d;
-  --accent-lime-300: #bef264;
-  --accent-lime-400: #a3e635;
-  --accent-lime-500: #84cc16;
-  --accent-lime-600: #65a30d;
-  --accent-lime-700: #4d7c0f;
-  --accent-lime-800: #3f6212;
-  --accent-lime-900: #365314;
-  --accent-lime-950: #1a2e05;
-  --accent-green-50: #f0fdf4;
-  --accent-green-100: #dcfce7;
-  --accent-green-200: #bbf7d0;
-  --accent-green-300: #86efac;
-  --accent-green-400: #4ade80;
-  --accent-green-500: #22c55e;
-  --accent-green-600: #16a34a;
-  --accent-green-700: #15803d;
-  --accent-green-800: #166534;
-  --accent-green-900: #14532d;
-  --accent-green-950: #052e16;
-  --accent-emerald-50: #ecfdf5;
-  --accent-emerald-100: #d1fae5;
-  --accent-emerald-200: #a7f3d0;
-  --accent-emerald-300: #6ee7b7;
-  --accent-emerald-400: #34d399;
-  --accent-emerald-500: #10b981;
-  --accent-emerald-600: #059669;
-  --accent-emerald-700: #047857;
-  --accent-emerald-800: #065f46;
-  --accent-emerald-900: #064e3b;
-  --accent-emerald-950: #022c22;
-  --accent-teal-50: #f0fdfa;
-  --accent-teal-100: #ccfbf1;
-  --accent-teal-200: #99f6e4;
-  --accent-teal-300: #5eead4;
-  --accent-teal-400: #2dd4bf;
-  --accent-teal-500: #14b8a6;
-  --accent-teal-600: #0d9488;
-  --accent-teal-700: #0f766e;
-  --accent-teal-800: #115e59;
-  --accent-teal-900: #134e4a;
-  --accent-teal-950: #042f2e;
-  --accent-cyan-50: #ecfeff;
-  --accent-cyan-100: #cffafe;
-  --accent-cyan-200: #a5f3fc;
-  --accent-cyan-300: #67e8f9;
-  --accent-cyan-400: #22d3ee;
-  --accent-cyan-500: #06b6d4;
-  --accent-cyan-600: #0891b2;
-  --accent-cyan-700: #0e7490;
-  --accent-cyan-800: #155e75;
-  --accent-cyan-900: #164e63;
-  --accent-cyan-950: #083344;
-  --accent-sky-50: #f0f9ff;
-  --accent-sky-100: #e0f2fe;
-  --accent-sky-200: #bae6fd;
-  --accent-sky-300: #7dd3fc;
-  --accent-sky-400: #38bdf8;
-  --accent-sky-500: #0ea5e9;
-  --accent-sky-600: #0284c7;
-  --accent-sky-700: #0369a1;
-  --accent-sky-800: #075985;
-  --accent-sky-900: #0c4a6e;
-  --accent-sky-950: #082f49;
-  --accent-blue-50: #eff6ff;
-  --accent-blue-100: #dbeafe;
-  --accent-blue-200: #bfdbfe;
-  --accent-blue-300: #93c5fd;
-  --accent-blue-400: #60a5fa;
-  --accent-blue-500: #3b82f6;
-  --accent-blue-600: #2563eb;
-  --accent-blue-700: #1d4ed8;
-  --accent-blue-800: #1e40af;
-  --accent-blue-900: #1e3a8a;
-  --accent-blue-950: #172554;
-  --accent-indigo-50: #eef2ff;
-  --accent-indigo-100: #e0e7ff;
-  --accent-indigo-200: #c7d2fe;
-  --accent-indigo-300: #a5b4fc;
-  --accent-indigo-400: #818cf8;
-  --accent-indigo-500: #6366f1;
-  --accent-indigo-600: #4f46e5;
-  --accent-indigo-700: #4338ca;
-  --accent-indigo-800: #3730a3;
-  --accent-indigo-900: #312e81;
-  --accent-indigo-950: #1e1b4b;
-  --accent-violet-50: #f5f3ff;
-  --accent-violet-100: #ede9fe;
-  --accent-violet-200: #ddd6fe;
-  --accent-violet-300: #c4b5fd;
-  --accent-violet-400: #a78bfa;
-  --accent-violet-500: #8b5cf6;
-  --accent-violet-600: #7c3aed;
-  --accent-violet-700: #6d28d9;
-  --accent-violet-800: #5b21b6;
-  --accent-violet-900: #4c1d95;
-  --accent-violet-950: #2e1065;
-  --accent-purple-50: #faf5ff;
-  --accent-purple-100: #f3e8ff;
-  --accent-purple-200: #e9d5ff;
-  --accent-purple-300: #d8b4fe;
-  --accent-purple-400: #c084fc;
-  --accent-purple-500: #a855f7;
-  --accent-purple-600: #9333ea;
-  --accent-purple-700: #7e22ce;
-  --accent-purple-800: #6b21a8;
-  --accent-purple-900: #581c87;
-  --accent-purple-950: #3b0764;
-  --accent-fuchsia-50: #fdf4ff;
-  --accent-fuchsia-100: #fae8ff;
-  --accent-fuchsia-200: #f5d0fe;
-  --accent-fuchsia-300: #f0abfc;
-  --accent-fuchsia-400: #e879f9;
-  --accent-fuchsia-500: #d946ef;
-  --accent-fuchsia-600: #c026d3;
-  --accent-fuchsia-700: #a21caf;
-  --accent-fuchsia-800: #86198f;
-  --accent-fuchsia-900: #701a75;
-  --accent-fuchsia-950: #4a044e;
-  --accent-pink-50: #fdf2f8;
-  --accent-pink-100: #fce7f3;
-  --accent-pink-200: #fbcfe8;
-  --accent-pink-300: #f9a8d4;
-  --accent-pink-400: #f472b6;
-  --accent-pink-500: #ec4899;
-  --accent-pink-600: #db2777;
-  --accent-pink-700: #be185d;
-  --accent-pink-800: #9d174d;
-  --accent-pink-900: #831843;
-  --accent-pink-950: #500724;
-  --accent-rose-50: #fff1f2;
-  --accent-rose-100: #ffe4e6;
-  --accent-rose-200: #fecdd3;
-  --accent-rose-300: #fda4af;
-  --accent-rose-400: #fb7185;
-  --accent-rose-500: #f43f5e;
-  --accent-rose-600: #e11d48;
-  --accent-rose-700: #be123c;
-  --accent-rose-800: #9f1239;
-  --accent-rose-900: #881337;
-  --accent-rose-950: #4c0519;
+  --bg-primary: #000000;
+  --bg-secondary: #1a1a1a;
+  --text-primary: #ffffff;
+  --text-secondary: #e5e5e5;
+  --neutral-900: #171717;
+  --neutral-800: #262626;
+  --neutral-700: #404040;
+  --neutral-600: #525252;
+  --neutral-500: #737373;
+  --neutral-400: #a3a3a3;
+  --neutral-300: #d4d4d4;
+  --neutral-200: #e5e5e5;
+  --neutral-100: #f5f5f5;
+  --neutral-50: #fafafa;
 }
 
 .dark {
-  --bg-primary: #1a1a1a;
-  --bg-secondary: #2d2d2d;
-  --text-primary: #f3f4f6;
-  --text-secondary: #d1d5db;
-  --accent-blue: #60a5fa;
-  --accent-green: #34d399;
-  --accent-purple: #a78bfa;
-  --accent-pink: #f472b6;
-  --accent-orange: #fb923c;
-  --accent-yellow: #fbbf24;
-  --accent-red: #f87171;
-  --accent-teal: #2dd4bf;
-  --accent-indigo: #818cf8;
-  --accent-cyan: #22d3ee;
-  --accent-lime: #a3e635;
-  --accent-emerald: #10b981;
-  --accent-violet: #8b5cf6;
-  --accent-fuchsia: #d946ef;
-  --accent-rose: #fb7185;
-  --accent-sky: #38bdf8;
-  --accent-amber: #fbbf24;
-  --accent-stone: #a8a29e;
-  --accent-neutral: #a3a3a3;
-  --accent-slate: #94a3b8;
-  --accent-zinc: #a1a1aa;
-  --accent-gray: #9ca3af;
-  --accent-slate-50: #f8fafc;
-  --accent-slate-100: #f1f5f9;
-  --accent-slate-200: #e2e8f0;
-  --accent-slate-300: #cbd5e1;
-  --accent-slate-400: #94a3b8;
-  --accent-slate-500: #64748b;
-  --accent-slate-600: #475569;
-  --accent-slate-700: #334155;
-  --accent-slate-800: #1e293b;
-  --accent-slate-900: #0f172a;
-  --accent-slate-950: #020617;
-  --accent-gray-50: #f9fafb;
-  --accent-gray-100: #f3f4f6;
-  --accent-gray-200: #e5e7eb;
-  --accent-gray-300: #d1d5db;
-  --accent-gray-400: #9ca3af;
-  --accent-gray-500: #6b7280;
-  --accent-gray-600: #4b5563;
-  --accent-gray-700: #374151;
-  --accent-gray-800: #1f2937;
-  --accent-gray-900: #111827;
-  --accent-gray-950: #030712;
-  --accent-zinc-50: #fafafa;
-  --accent-zinc-100: #f4f4f5;
-  --accent-zinc-200: #e4e4e7;
-  --accent-zinc-300: #d4d4d8;
-  --accent-zinc-400: #a1a1aa;
-  --accent-zinc-500: #71717a;
-  --accent-zinc-600: #52525b;
-  --accent-zinc-700: #3f3f46;
-  --accent-zinc-800: #27272a;
-  --accent-zinc-900: #18181b;
-  --accent-zinc-950: #09090b;
-  --accent-neutral-50: #fafafa;
-  --accent-neutral-100: #f5f5f5;
-  --accent-neutral-200: #e5e5e5;
-  --accent-neutral-300: #d4d4d4;
-  --accent-neutral-400: #a3a3a3;
-  --accent-neutral-500: #737373;
-  --accent-neutral-600: #525252;
-  --accent-neutral-700: #404040;
-  --accent-neutral-800: #262626;
-  --accent-neutral-900: #171717;
-  --accent-neutral-950: #0a0a0a;
-  --accent-stone-50: #fafaf9;
-  --accent-stone-100: #f5f5f4;
-  --accent-stone-200: #e7e5e4;
-  --accent-stone-300: #d6d3d1;
-  --accent-stone-400: #a8a29e;
-  --accent-stone-500: #78716c;
-  --accent-stone-600: #57534e;
-  --accent-stone-700: #44403c;
-  --accent-stone-800: #292524;
-  --accent-stone-900: #1c1917;
-  --accent-stone-950: #0c0a09;
-  --accent-red-50: #fef2f2;
-  --accent-red-100: #fee2e2;
-  --accent-red-200: #fecaca;
-  --accent-red-300: #fca5a5;
-  --accent-red-400: #f87171;
-  --accent-red-500: #ef4444;
-  --accent-red-600: #dc2626;
-  --accent-red-700: #b91c1c;
-  --accent-red-800: #991b1b;
-  --accent-red-900: #7f1d1d;
-  --accent-red-950: #450a0a;
-  --accent-orange-50: #fff7ed;
-  --accent-orange-100: #ffedd5;
-  --accent-orange-200: #fed7aa;
-  --accent-orange-300: #fdba74;
-  --accent-orange-400: #fb923c;
-  --accent-orange-500: #f97316;
-  --accent-orange-600: #ea580c;
-  --accent-orange-700: #c2410c;
-  --accent-orange-800: #9a3412;
-  --accent-orange-900: #7c2d12;
-  --accent-orange-950: #431407;
-  --accent-amber-50: #fffbeb;
-  --accent-amber-100: #fef3c7;
-  --accent-amber-200: #fde68a;
-  --accent-amber-300: #fcd34d;
-  --accent-amber-400: #fbbf24;
-  --accent-amber-500: #f59e0b;
-  --accent-amber-600: #d97706;
-  --accent-amber-700: #b45309;
-  --accent-amber-800: #92400e;
-  --accent-amber-900: #78350f;
-  --accent-amber-950: #451a03;
-  --accent-yellow-50: #fefce8;
-  --accent-yellow-100: #fef9c3;
-  --accent-yellow-200: #fef08a;
-  --accent-yellow-300: #fde047;
-  --accent-yellow-400: #facc15;
-  --accent-yellow-500: #eab308;
-  --accent-yellow-600: #ca8a04;
-  --accent-yellow-700: #a16207;
-  --accent-yellow-800: #854d0e;
-  --accent-yellow-900: #713f12;
-  --accent-yellow-950: #422006;
-  --accent-lime-50: #f7fee7;
-  --accent-lime-100: #ecfccb;
-  --accent-lime-200: #d9f99d;
-  --accent-lime-300: #bef264;
-  --accent-lime-400: #a3e635;
-  --accent-lime-500: #84cc16;
-  --accent-lime-600: #65a30d;
-  --accent-lime-700: #4d7c0f;
-  --accent-lime-800: #3f6212;
-  --accent-lime-900: #365314;
-  --accent-lime-950: #1a2e05;
-  --accent-green-50: #f0fdf4;
-  --accent-green-100: #dcfce7;
-  --accent-green-200: #bbf7d0;
-  --accent-green-300: #86efac;
-  --accent-green-400: #4ade80;
-  --accent-green-500: #22c55e;
-  --accent-green-600: #16a34a;
-  --accent-green-700: #15803d;
-  --accent-green-800: #166534;
-  --accent-green-900: #14532d;
-  --accent-green-950: #052e16;
-  --accent-emerald-50: #ecfdf5;
-  --accent-emerald-100: #d1fae5;
-  --accent-emerald-200: #a7f3d0;
-  --accent-emerald-300: #6ee7b7;
-  --accent-emerald-400: #34d399;
-  --accent-emerald-500: #10b981;
-  --accent-emerald-600: #059669;
-  --accent-emerald-700: #047857;
-  --accent-emerald-800: #065f46;
-  --accent-emerald-900: #064e3b;
-  --accent-emerald-950: #022c22;
-  --accent-teal-50: #f0fdfa;
-  --accent-teal-100: #ccfbf1;
-  --accent-teal-200: #99f6e4;
-  --accent-teal-300: #5eead4;
-  --accent-teal-400: #2dd4bf;
-  --accent-teal-500: #14b8a6;
-  --accent-teal-600: #0d9488;
-  --accent-teal-700: #0f766e;
-  --accent-teal-800: #115e59;
-  --accent-teal-900: #134e4a;
-  --accent-teal-950: #042f2e;
-  --accent-cyan-50: #ecfeff;
-  --accent-cyan-100: #cffafe;
-  --accent-cyan-200: #a5f3fc;
-  --accent-cyan-300: #67e8f9;
-  --accent-cyan-400: #22d3ee;
-  --accent-cyan-500: #06b6d4;
-  --accent-cyan-600: #0891b2;
-  --accent-cyan-700: #0e7490;
-  --accent-cyan-800: #155e75;
-  --accent-cyan-900: #164e63;
-  --accent-cyan-950: #083344;
-  --accent-sky-50: #f0f9ff;
-  --accent-sky-100: #e0f2fe;
-  --accent-sky-200: #bae6fd;
-  --accent-sky-300: #7dd3fc;
-  --accent-sky-400: #38bdf8;
-  --accent-sky-500: #0ea5e9;
-  --accent-sky-600: #0284c7;
-  --accent-sky-700: #0369a1;
-  --accent-sky-800: #075985;
-  --accent-sky-900: #0c4a6e;
-  --accent-sky-950: #082f49;
-  --accent-blue-50: #eff6ff;
-  --accent-blue-100: #dbeafe;
-  --accent-blue-200: #bfdbfe;
-  --accent-blue-300: #93c5fd;
-  --accent-blue-400: #60a5fa;
-  --accent-blue-500: #3b82f6;
-  --accent-blue-600: #2563eb;
-  --accent-blue-700: #1d4ed8;
-  --accent-blue-800: #1e40af;
-  --accent-blue-900: #1e3a8a;
-  --accent-blue-950: #172554;
-  --accent-indigo-50: #eef2ff;
-  --accent-indigo-100: #e0e7ff;
-  --accent-indigo-200: #c7d2fe;
-  --accent-indigo-300: #a5b4fc;
-  --accent-indigo-400: #818cf8;
-  --accent-indigo-500: #6366f1;
-  --accent-indigo-600: #4f46e5;
-  --accent-indigo-700: #4338ca;
-  --accent-indigo-800: #3730a3;
-  --accent-indigo-900: #312e81;
-  --accent-indigo-950: #1e1b4b;
-  --accent-violet-50: #f5f3ff;
-  --accent-violet-100: #ede9fe;
-  --accent-violet-200: #ddd6fe;
-  --accent-violet-300: #c4b5fd;
-  --accent-violet-400: #a78bfa;
-  --accent-violet-500: #8b5cf6;
-  --accent-violet-600: #7c3aed;
-  --accent-violet-700: #6d28d9;
-  --accent-violet-800: #5b21b6;
-  --accent-violet-900: #4c1d95;
-  --accent-violet-950: #2e1065;
-  --accent-purple-50: #faf5ff;
-  --accent-purple-100: #f3e8ff;
-  --accent-purple-200: #e9d5ff;
-  --accent-purple-300: #d8b4fe;
-  --accent-purple-400: #c084fc;
-  --accent-purple-500: #a855f7;
-  --accent-purple-600: #9333ea;
-  --accent-purple-700: #7e22ce;
-  --accent-purple-800: #6b21a8;
-  --accent-purple-900: #581c87;
-  --accent-purple-950: #3b0764;
-  --accent-fuchsia-50: #fdf4ff;
-  --accent-fuchsia-100: #fae8ff;
-  --accent-fuchsia-200: #f5d0fe;
-  --accent-fuchsia-300: #f0abfc;
-  --accent-fuchsia-400: #e879f9;
-  --accent-fuchsia-500: #d946ef;
-  --accent-fuchsia-600: #c026d3;
-  --accent-fuchsia-700: #a21caf;
-  --accent-fuchsia-800: #86198f;
-  --accent-fuchsia-900: #701a75;
-  --accent-fuchsia-950: #4a044e;
-  --accent-pink-50: #fdf2f8;
-  --accent-pink-100: #fce7f3;
-  --accent-pink-200: #fbcfe8;
-  --accent-pink-300: #f9a8d4;
-  --accent-pink-400: #f472b6;
-  --accent-pink-500: #ec4899;
-  --accent-pink-600: #db2777;
-  --accent-pink-700: #be185d;
-  --accent-pink-800: #9d174d;
-  --accent-pink-900: #831843;
-  --accent-pink-950: #500724;
-  --accent-rose-50: #fff1f2;
-  --accent-rose-100: #ffe4e6;
-  --accent-rose-200: #fecdd3;
-  --accent-rose-300: #fda4af;
-  --accent-rose-400: #fb7185;
-  --accent-rose-500: #f43f5e;
-  --accent-rose-600: #e11d48;
-  --accent-rose-700: #be123c;
-  --accent-rose-800: #9f1239;
-  --accent-rose-900: #881337;
-  --accent-rose-950: #4c0519;
+  --bg-primary: #000000;
+  --bg-secondary: #1a1a1a;
+  --text-primary: #ffffff;
+  --text-secondary: #e5e5e5;
+  --neutral-900: #171717;
+  --neutral-800: #262626;
+  --neutral-700: #404040;
+  --neutral-600: #525252;
+  --neutral-500: #737373;
+  --neutral-400: #a3a3a3;
+  --neutral-300: #d4d4d4;
+  --neutral-200: #e5e5e5;
+  --neutral-100: #f5f5f5;
+  --neutral-50: #fafafa;
 }
 
 body {

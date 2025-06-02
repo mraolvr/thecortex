@@ -1,4 +1,4 @@
-import React, { useState, createContext, useContext } from "react";
+import React, { useState, createContext, useContext, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, User } from "lucide-react";
 import { cn } from "../../utils/cn";
@@ -18,6 +18,7 @@ import {
 import { routes, bottomRoutes } from '../../routes/routes';
 import GlowingEffect from '../ui/GlowingEffect';
 import { useUser } from '../../contexts/UserContext';
+import CortexLogo from '../ui/CortexLogo';
 
 const SidebarContext = createContext(undefined);
 
@@ -60,7 +61,7 @@ export const Sidebar = ({
   );
 };
 
-export const SidebarLink = ({ to, icon: Icon, children }) => {
+export const SidebarLink = ({ to, icon: Icon, children, isCollapsed }) => {
   const location = useLocation();
   const isActive = location.pathname === to;
 
@@ -70,19 +71,16 @@ export const SidebarLink = ({ to, icon: Icon, children }) => {
       className={cn(
         "flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group relative overflow-hidden",
         isActive
-          ? "bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 text-white shadow-lg"
-          : "text-white/70 hover:bg-white/10 hover:text-white"
+          ? "bg-neutral-800 text-white shadow-lg"
+          : "text-neutral-200 hover:bg-neutral-800 hover:text-white",
+        isCollapsed ? 'justify-center px-2' : ''
       )}
     >
-      <div className={cn(
-        "absolute inset-0 bg-gradient-to-r from-violet-600/30 via-purple-600/30 to-fuchsia-600/30 opacity-0 transition-opacity duration-300",
-        isActive ? "opacity-100" : "group-hover:opacity-100"
-      )} />
       <Icon className={cn(
         "w-5 h-5 relative z-10 transition-transform duration-300",
         isActive ? "scale-110" : "group-hover:scale-110"
       )} />
-      <span className="relative z-10 font-medium">{children}</span>
+      {!isCollapsed && <span className="relative z-10 font-medium">{children}</span>}
     </Link>
   );
 };
@@ -94,13 +92,35 @@ export const SidebarBody = ({ children }) => {
 
   const profileImage = user?.user_metadata?.avatar_url || profile?.avatar_url;
 
+  // Close sidebar when clicking outside on mobile
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isCollapsed && !event.target.closest('.sidebar-content')) {
+        setIsCollapsed(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [isCollapsed]);
+
   return (
     <>
       {/* Mobile Sidebar */}
       <div className="md:hidden">
         <div className="h-16 px-4 flex items-center justify-between bg-gradient-to-r from-violet-600/95 via-purple-600/95 to-fuchsia-600/95 backdrop-blur-sm border-b border-white/20">
           <span className="text-xl font-semibold text-white">theCortex</span>
-          <Menu className="w-6 h-6 text-white cursor-pointer hover:text-white/80 transition-colors duration-200" onClick={() => setIsCollapsed(!isCollapsed)} />
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="p-2 -mr-2 focus:outline-none focus:ring-2 focus:ring-primary rounded-lg"
+            aria-label={isCollapsed ? "Close menu" : "Open menu"}
+          >
+            <Menu className="w-6 h-6 text-white" />
+          </button>
         </div>
         <AnimatePresence>
           {isCollapsed && (
@@ -108,12 +128,18 @@ export const SidebarBody = ({ children }) => {
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
-              transition={{ type: "spring", damping: 20 }}
-              className="fixed inset-0 bg-gradient-to-br from-violet-900/98 via-purple-900/98 to-fuchsia-900/98 backdrop-blur-sm z-50 p-4"
+              transition={{ type: "spring", damping: 20, stiffness: 300 }}
+              className="fixed inset-0 bg-gradient-to-br from-violet-900/98 via-purple-900/98 to-fuchsia-900/98 backdrop-blur-sm z-50 p-4 sidebar-content"
             >
               <div className="flex justify-between items-center mb-8">
                 <span className="text-xl font-semibold text-white">theCortex</span>
-                <X className="w-6 h-6 text-white cursor-pointer hover:text-white/80 transition-colors duration-200" onClick={() => setIsCollapsed(false)} />
+                <button
+                  onClick={() => setIsCollapsed(false)}
+                  className="p-2 -mr-2 focus:outline-none focus:ring-2 focus:ring-primary rounded-lg"
+                  aria-label="Close menu"
+                >
+                  <X className="w-6 h-6 text-white" />
+                </button>
               </div>
               <div className="flex justify-center mb-6">
                 <div className="relative">
@@ -131,54 +157,8 @@ export const SidebarBody = ({ children }) => {
                   <div className="absolute inset-0 rounded-full bg-gradient-to-br from-violet-500/20 via-purple-500/20 to-fuchsia-500/20" />
                 </div>
               </div>
-              <nav className="space-y-2">
-                {routes.map((route) => (
-                  <Link
-                    key={route.path}
-                    to={route.path}
-                    className={cn(
-                      "flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group relative overflow-hidden",
-                      location.pathname === route.path
-                        ? "bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 text-white shadow-lg"
-                        : "text-white/70 hover:bg-white/10 hover:text-white"
-                    )}
-                    onClick={() => setIsCollapsed(false)}
-                  >
-                    <div className={cn(
-                      "absolute inset-0 bg-gradient-to-r from-violet-600/30 via-purple-600/30 to-fuchsia-600/30 opacity-0 transition-opacity duration-300",
-                      location.pathname === route.path ? "opacity-100" : "group-hover:opacity-100"
-                    )} />
-                    <route.icon className={cn(
-                      "w-5 h-5 relative z-10 transition-transform duration-300",
-                      location.pathname === route.path ? "scale-110" : "group-hover:scale-110"
-                    )} />
-                    <span className="relative z-10 font-medium">{route.name}</span>
-                  </Link>
-                ))}
-                <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-4" />
-                {bottomRoutes.map((route) => (
-                  <Link
-                    key={route.path}
-                    to={route.path}
-                    className={cn(
-                      "flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group relative overflow-hidden",
-                      location.pathname === route.path
-                        ? "bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 text-white shadow-lg"
-                        : "text-white/70 hover:bg-white/10 hover:text-white"
-                    )}
-                    onClick={() => setIsCollapsed(false)}
-                  >
-                    <div className={cn(
-                      "absolute inset-0 bg-gradient-to-r from-violet-600/30 via-purple-600/30 to-fuchsia-600/30 opacity-0 transition-opacity duration-300",
-                      location.pathname === route.path ? "opacity-100" : "group-hover:opacity-100"
-                    )} />
-                    <route.icon className={cn(
-                      "w-5 h-5 relative z-10 transition-transform duration-300",
-                      location.pathname === route.path ? "scale-110" : "group-hover:scale-110"
-                    )} />
-                    <span className="relative z-10 font-medium">{route.name}</span>
-                  </Link>
-                ))}
+              <nav className="space-y-2 overflow-y-auto max-h-[calc(100vh-200px)] custom-scrollbar">
+                {children}
               </nav>
             </motion.div>
           )}
@@ -186,29 +166,44 @@ export const SidebarBody = ({ children }) => {
       </div>
 
       {/* Desktop Sidebar */}
-      <div className="hidden md:flex flex-col fixed left-0 top-0 h-screen w-[280px] bg-gradient-to-br from-violet-600/95 via-purple-600/95 to-fuchsia-600/95 backdrop-blur-sm border-r border-white/20 z-50">
-        <GlowingEffect className="h-16 px-6 flex items-center justify-between border-b border-white/20">
-          <span className="text-xl font-semibold text-white">theCortex</span>
-        </GlowingEffect>
+      <div className={`hidden md:flex flex-col fixed left-0 top-0 h-screen ${isCollapsed ? 'w-[200px]' : 'w-[280px]'} bg-black border-r border-neutral-800 z-50 transition-all duration-300`}>
+        <div className="h-16 px-6 flex items-center justify-between border-b border-neutral-800">
+          <div className="flex items-center gap-2">
+            <CortexLogo size={isCollapsed ? 20 : 36} />
+            <span className={`font-semibold text-white transition-all duration-300 ${isCollapsed ? 'text-sm' : 'text-xl'}`}>theCortex</span>
+          </div>
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="p-2 ml-2 focus:outline-none focus:ring-2 focus:ring-primary rounded-lg"
+            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            {isCollapsed ? <Menu className="w-2 h-2 text-white" /> : <Menu className="w-4 h-4 text-white" />}
+          </button>
+        </div>
         <div className="flex justify-center py-6">
-          <div className="relative group">
+          <div className="relative group flex flex-col items-center">
             {profileImage ? (
               <img
                 src={profileImage}
                 alt="Profile"
-                className="w-24 h-24 rounded-full border-2 border-white/20 shadow-lg transition-transform duration-300 group-hover:scale-105"
-                
+                className={`rounded-full border-2 border-neutral-800 shadow-lg transition-all duration-300 ${isCollapsed ? 'w-10 h-10' : 'w-24 h-24'}`}
               />
             ) : (
-              <div className="w-24 h-24 rounded-full border-2 border-white/20 shadow-lg bg-white/10 flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
-                <User className="w-12 h-12 text-white/70" />
+              <div className={`rounded-full border-2 border-neutral-800 shadow-lg bg-neutral-800 flex items-center justify-center transition-all duration-300 ${isCollapsed ? 'w-10 h-10' : 'w-24 h-24'}`}>
+                <User className={`${isCollapsed ? 'w-5 h-5' : 'w-12 h-12'} text-neutral-400`} />
               </div>
             )}
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-violet-500/20 via-purple-500/20 to-fuchsia-500/20 transition-opacity duration-300 group-hover:opacity-0" />
+            {!isCollapsed && user?.user_metadata?.full_name && (
+              <div className="mt-2 text-center text-sm text-white font-medium truncate max-w-[120px]">
+                {user.user_metadata.full_name}
+              </div>
+            )}
           </div>
         </div>
-        <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
-          {children}
+        <nav className={`flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar transition-all duration-300 ${isCollapsed ? 'px-1' : 'px-4'}`}> 
+          {React.Children.map(children, child =>
+            React.cloneElement(child, { isCollapsed })
+          )}
         </nav>
       </div>
 

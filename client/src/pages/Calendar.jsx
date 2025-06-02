@@ -243,7 +243,7 @@ const CustomToolbar = ({ date, onNavigate, onView, view, setAgendaViewFilter, ag
     }
 
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-8">
         <span className="flex items-center justify-between gap-4 text-2xl font-light text-cyan-100">
           {view === 'day' ? 'Today Is ' : ''}{dateLabel}
         </span>
@@ -722,6 +722,8 @@ export default function CalendarPage() {
                 max={new Date(0, 0, 0, 18, 0, 0)}
                 step={60}
                 timeslots={1}
+                view={view}
+                onView={setView}
               />
             </div>
 

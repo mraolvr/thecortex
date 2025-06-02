@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import Card from '../../components/ui/Card';
 import SectionHeader from '../../components/ui/SectionHeader';
+import Button from '../../components/ui/Button';
 
 const defaultCategories = [
   { id: 'all', name: 'All Contacts', icon: 'Users', color: '#6366f1', isDefault: true },
@@ -393,12 +394,12 @@ export default function Contacts() {
                     >
                       {sortOrder === 'asc' ? '↑' : '↓'}
                     </button>
-                    <button
+                    <Button
                       onClick={() => setShowAddModal(true)}
-                      className="bg-primary hover:bg-primary-light text-white px-4 py-2 rounded-lg transition-colors"
+                      variant="primary"
                     >
                       Add New Contact
-                    </button>
+                    </Button>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2 text-sm text-neutral">
@@ -409,7 +410,7 @@ export default function Contacts() {
                         setFilters({ category: '', communicationCadence: '', name: '' });
                         setShowFavorites(false);
                       }}
-                      className="text-primary hover:text-primary-light"
+                      className="text-primary hover:text-white"
                     >
                       Clear Filters
                     </button>
@@ -510,9 +511,11 @@ export default function Contacts() {
                       />
                       <label
                         htmlFor="photo-upload"
-                        className="inline-block bg-background px-4 py-2 rounded-lg border border-surface cursor-pointer hover:bg-background-light transition-colors"
+                        className="inline-block"
                       >
-                        Upload Photo
+                        <Button variant="secondary">
+                          Upload Photo
+                        </Button>
                       </label>
                     </div>
                   </div>
@@ -639,20 +642,20 @@ export default function Contacts() {
 
                   <div className="col-span-2 flex justify-end space-x-2">
                     {!showAddModal && (
-                      <button
+                      <Button
                         type="button"
                         onClick={() => handleDeleteContact(selectedContact.id)}
-                        className="bg-error hover:bg-error-light text-white px-4 py-2 rounded-lg transition-colors"
+                        variant="destructive"
                       >
                         Delete
-                      </button>
+                      </Button>
                     )}
-                    <button
+                    <Button
                       type="submit"
-                      className="bg-primary hover:bg-primary-light text-white px-4 py-2 rounded-lg transition-colors"
+                      variant="primary"
                     >
                       {showAddModal ? 'Add Contact' : 'Save Changes'}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </form>
@@ -707,12 +710,12 @@ export default function Contacts() {
                 </div>
 
                 <div className="flex justify-end space-x-2">
-                  <button
+                  <Button
                     onClick={() => setIsEditing(true)}
-                    className="bg-primary hover:bg-primary-light text-white px-4 py-2 rounded-lg transition-colors"
+                    variant="primary"
                   >
                     Edit
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}

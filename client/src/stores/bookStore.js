@@ -2,30 +2,6 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { supabase } from '../lib/supabase';
 
-const isDevelopment = import.meta.env.MODE === 'development';
-
-// Mock user for development
-const mockUser = {
-  id: '8235a0fd-a232-40f1-a9ed-b420895804a8',
-  email: 'austinblakeoliver@gmail.com',
-  name: 'Austin Oliver',
-  role: 'admin'
-};
-
-// Set the mock user in Supabase auth if in development mode
-if (isDevelopment) {
-  // Override the getUser method in development
-  const originalGetUser = supabase.auth.getUser;
-  supabase.auth.getUser = async () => {
-    return {
-      data: {
-        user: mockUser
-      },
-      error: null
-    };
-  };
-}
-
 const useBookStore = create(
   persist(
     (set, get) => ({
@@ -38,9 +14,24 @@ const useBookStore = create(
       // Initialize books from Supabase
       initializeBooks: async () => {
         try {
+          // Get the current user
+          const { data: { user }, error: authError } = await supabase.auth.getUser();
+          
+          if (authError) {
+            console.error('Auth error:', authError);
+            throw new Error('Authentication error');
+          }
+          
+          if (!user) {
+            console.error('No user found');
+            throw new Error('User not authenticated');
+          }
+
+          console.log('Fetching books for user:', user.id);
           const { data, error } = await supabase
             .from('books')
             .select('*')
+            .eq('user_id', user.id)
             .order('created_at', { ascending: false });
 
           if (error) throw error;
@@ -91,31 +82,11 @@ const useBookStore = create(
             user_id: userId,
             current_page: cleanBook.current_page || 0,
             progress: cleanBook.progress || 0,
-            categories: Array.isArray(cleanBook.categories)
-              ? cleanBook.categories
-              : (typeof cleanBook.categories === 'string' && cleanBook.categories.trim() === '')
-                ? []
-                : (cleanBook.categories ? [cleanBook.categories] : []),
-            custom_categories: Array.isArray(cleanBook.custom_categories)
-              ? cleanBook.custom_categories
-              : (typeof cleanBook.custom_categories === 'string' && cleanBook.custom_categories.trim() === '')
-                ? []
-                : (cleanBook.custom_categories ? [cleanBook.custom_categories] : []),
-            reading_sessions: Array.isArray(cleanBook.reading_sessions)
-              ? cleanBook.reading_sessions
-              : (typeof cleanBook.reading_sessions === 'string' && cleanBook.reading_sessions.trim() === '')
-                ? []
-                : (cleanBook.reading_sessions ? [cleanBook.reading_sessions] : []),
-            notes: Array.isArray(cleanBook.notes)
-              ? cleanBook.notes
-              : (typeof cleanBook.notes === 'string' && cleanBook.notes.trim() === '')
-                ? []
-                : (cleanBook.notes ? [cleanBook.notes] : []),
-            rating: Array.isArray(cleanBook.rating)
-              ? cleanBook.rating
-              : (typeof cleanBook.rating === 'string' && cleanBook.rating.trim() === '')
-                ? []
-                : (cleanBook.rating ? [cleanBook.rating] : []),
+            categories: Array.isArray(cleanBook.categories) ? cleanBook.categories : [],
+            custom_categories: Array.isArray(cleanBook.custom_categories) ? cleanBook.custom_categories : [],
+            reading_sessions: Array.isArray(cleanBook.reading_sessions) ? cleanBook.reading_sessions : [],
+            notes: Array.isArray(cleanBook.notes) ? cleanBook.notes : [],
+            rating: Array.isArray(cleanBook.rating) ? cleanBook.rating : [],
             actionable_items_text: cleanBook.actionable_items_text || '',
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
@@ -167,32 +138,12 @@ const useBookStore = create(
             start_date: updatedBook.start_date || null,
             last_read_date: updatedBook.last_read_date || null,
             completed_date: updatedBook.completed_date || null,
-            categories: Array.isArray(updatedBook.categories)
-              ? updatedBook.categories
-              : (typeof updatedBook.categories === 'string' && updatedBook.categories.trim() === '')
-                ? []
-                : (updatedBook.categories ? [updatedBook.categories] : []),
-            custom_categories: Array.isArray(updatedBook.custom_categories)
-              ? updatedBook.custom_categories
-              : (typeof updatedBook.custom_categories === 'string' && updatedBook.custom_categories.trim() === '')
-                ? []
-                : (updatedBook.custom_categories ? [updatedBook.custom_categories] : []),
-            reading_sessions: Array.isArray(updatedBook.reading_sessions)
-              ? updatedBook.reading_sessions
-              : (typeof updatedBook.reading_sessions === 'string' && updatedBook.reading_sessions.trim() === '')
-                ? []
-                : (updatedBook.reading_sessions ? [updatedBook.reading_sessions] : []),
-            notes: Array.isArray(updatedBook.notes)
-              ? updatedBook.notes
-              : (typeof updatedBook.notes === 'string' && updatedBook.notes.trim() === '')
-                ? []
-                : (updatedBook.notes ? [updatedBook.notes] : []),
-            rating: Array.isArray(updatedBook.rating)
-              ? updatedBook.rating
-              : (typeof updatedBook.rating === 'string' && updatedBook.rating.trim() === '')
-                ? []
-                : (updatedBook.rating ? [updatedBook.rating] : []),
-            actionable_items_text: typeof updatedBook.actionable_items_text === 'string' ? updatedBook.actionable_items_text : ''
+            categories: Array.isArray(updatedBook.categories) ? updatedBook.categories : [],
+            custom_categories: Array.isArray(updatedBook.custom_categories) ? updatedBook.custom_categories : [],
+            reading_sessions: Array.isArray(updatedBook.reading_sessions) ? updatedBook.reading_sessions : [],
+            notes: Array.isArray(updatedBook.notes) ? updatedBook.notes : [],
+            rating: Array.isArray(updatedBook.rating) ? updatedBook.rating : [],
+            actionable_items_text: updatedBook.actionable_items_text || ''
           };
 
           const { data, error } = await supabase

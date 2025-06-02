@@ -10,6 +10,8 @@ import {
   HelpCircle,
   Calendar,
   Users,
+  Search,
+  Lightbulb,
 } from 'lucide-react';
 
 export const routes = [
@@ -38,23 +40,30 @@ export const routes = [
     path: '/creative',
     icon: PenTool,
   },
-
+  {
+    name: 'Curiosity Corner',
+    path: '/curiosity',
+    icon: Lightbulb,
+  },
   {
     name: 'Library',
     path: '/books',
     icon: BookOpen,
   },
-
   {
     name: 'Vault',
     path: '/vault',
     icon: Lock,
   },
-
   {
     name: 'Contacts',
     path: '/contacts',
     icon: Users,
+  },
+  {
+    name: 'Introspection',
+    path: '/introspection',
+    icon: Brain,
   },
 ];
 
@@ -64,5 +73,4 @@ export const bottomRoutes = [
     path: '/settings',
     icon: Settings,
   },
-
 ]; 

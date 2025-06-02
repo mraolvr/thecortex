@@ -4,11 +4,19 @@ import GlowingEffect from '../../components/ui/GlowingEffect';
 import { 
   User, Settings, LogOut, Upload, 
   Mail, Lock, Bell, Globe, Moon, Sun,
-  Github, Twitter, Linkedin, Check
+  Github, Twitter, Linkedin, Check, Trash2, Eye, EyeOff
 } from 'lucide-react';
 import { useUser } from '../../contexts/UserContext';
 import SectionHeader from '../../components/ui/SectionHeader';
-import { Settings as SettingsIcon } from 'lucide-react';
+import Button from '../../components/ui/Button';
+
+const sidebarTabs = [
+  { id: 'profile', name: 'Profile', icon: User },
+  { id: 'account', name: 'Account', icon: Settings },
+  { id: 'notifications', name: 'Notifications', icon: Bell },
+  { id: 'appearance', name: 'Appearance', icon: Moon },
+  { id: 'security', name: 'Security', icon: Lock },
+];
 
 const GoogleIcon = () => (
   <svg
@@ -41,11 +49,27 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('profile');
   const [uploading, setUploading] = useState(false);
+  const [editProfile, setEditProfile] = useState({ full_name: '', email: '' });
+  const [editMode, setEditMode] = useState(false);
+  const [editPassword, setEditPassword] = useState({ current: '', new: '', confirm: '' });
+  const [showPassword, setShowPassword] = useState(false);
+  const [notificationPrefs, setNotificationPrefs] = useState({ email: true, inApp: true, product: false });
+  const [appearance, setAppearance] = useState({ theme: 'system', fontSize: 'normal' });
+  const [feedback, setFeedback] = useState('');
+  const [error, setError] = useState('');
   const [connectedAccounts, setConnectedAccounts] = useState({});
+  const [deleting, setDeleting] = useState(false);
+  const [securityInfo, setSecurityInfo] = useState({ lastLogin: '', sessions: [] });
 
   useEffect(() => {
-    if (user) {
-      // Get connected accounts
+    if (user && profile) {
+      setEditProfile({
+        full_name: profile.full_name || user.user_metadata?.full_name || '',
+        email: profile.email || user.email || '',
+      });
+      setNotificationPrefs(profile.preferences?.notifications || { email: true, inApp: true, product: false });
+      setAppearance(profile.preferences?.appearance || { theme: 'system', fontSize: 'normal' });
+      // Connected accounts
       const connected = {};
       if (user.identities) {
         user.identities.forEach(identity => {
@@ -53,9 +77,14 @@ export default function SettingsPage() {
         });
       }
       setConnectedAccounts(connected);
+      // Security info (mocked for now)
+      setSecurityInfo({
+        lastLogin: user.last_sign_in_at || '',
+        sessions: [{ device: 'This device', time: user.last_sign_in_at || '' }],
+      });
       setLoading(false);
     }
-  }, [user]);
+  }, [user, profile]);
 
   const handleAvatarUpload = async (event) => {
     try {
@@ -63,32 +92,49 @@ export default function SettingsPage() {
       const file = event.target.files[0];
       const fileExt = file.name.split('.').pop();
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(fileName, file);
-
+      const { error: uploadError } = await supabase.storage.from('avatars').upload(fileName, file);
       if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(fileName);
-
+      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(fileName);
       await updateProfile({ avatar_url: publicUrl });
+      setFeedback('Avatar updated!');
     } catch (error) {
-      console.error('Error uploading avatar:', error);
+      setError('Error uploading avatar.');
     } finally {
       setUploading(false);
     }
   };
 
-  const handlePreferenceChange = async (key, value) => {
+  const handleProfileSave = async () => {
     try {
-      const newPreferences = { ...profile.preferences, [key]: value };
-      await updateProfile({ preferences: newPreferences });
+      await updateProfile({ full_name: editProfile.full_name, email: editProfile.email });
+      setEditMode(false);
+      setFeedback('Profile updated!');
     } catch (error) {
-      console.error('Error updating preferences:', error);
+      setError('Error updating profile.');
     }
+  };
+
+  const handlePasswordChange = async () => {
+    // Implement password change logic here (using supabase or your backend)
+    setFeedback('Password changed!');
+    setEditPassword({ current: '', new: '', confirm: '' });
+  };
+
+  const handleNotificationChange = (key) => {
+    setNotificationPrefs((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const handleAppearanceChange = (key, value) => {
+    setAppearance((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeleting(true);
+    // Implement account deletion logic here
+    setTimeout(() => {
+      setDeleting(false);
+      setFeedback('Account deleted.');
+    }, 2000);
   };
 
   const handleSignOut = async () => {
@@ -97,26 +143,7 @@ export default function SettingsPage() {
       if (error) throw error;
       window.location.href = '/login';
     } catch (error) {
-      console.error('Error signing out:', error);
-    }
-  };
-
-  const handleOAuthLogin = async (provider) => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: provider,
-        options: {
-          redirectTo: `${window.location.origin}/settings`,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          },
-        }
-      });
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error signing in with OAuth:', error);
+      setError('Error signing out.');
     }
   };
 
@@ -142,52 +169,42 @@ export default function SettingsPage() {
           title="Settings"
           subtitle="Configure your preferences and account."
           center
-          icon={SettingsIcon}
+          icon={Settings}
           divider
         />
-        <div className="max-w-4xl mx-auto space-y-6">
-          <GlowingEffect className="bg-surface p-6 rounded-xl">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h1 className="text-3xl font-semibold">Settings</h1>
-                <p className="text-neutral mt-2">Manage your account settings and preferences</p>
-              </div>
-              <button
-                onClick={handleSignOut}
-                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
-              >
-                <LogOut className="w-5 h-5" />
-                Sign Out
-              </button>
-            </div>
-
-            <div className="flex space-x-4 border-b border-surface-light">
-              {[
-                { id: 'profile', name: 'Profile', icon: User },
-                { id: 'account', name: 'Account', icon: Settings },
-                { id: 'notifications', name: 'Notifications', icon: Bell },
-                { id: 'appearance', name: 'Appearance', icon: Moon }
-              ].map(({ id, name, icon: Icon }) => (
+        <div className="max-w-5xl mx-auto flex gap-8 mt-8">
+          {/* Sidebar Navigation */}
+          <div className="w-56 flex-shrink-0">
+            <div className="bg-surface rounded-xl shadow p-4 flex flex-col gap-2">
+              {sidebarTabs.map(({ id, name, icon: Icon }) => (
                 <button
                   key={id}
                   onClick={() => setActiveTab(id)}
-                  className={`flex items-center gap-2 px-4 py-2 -mb-px transition-all duration-200 ${
+                  className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-all text-left font-medium text-base ${
                     activeTab === id
-                      ? 'text-primary border-b-2 border-primary scale-105'
-                      : 'text-neutral hover:text-white hover:scale-105'
+                      ? 'bg-primary/10 text-primary' : 'hover:bg-surface-light text-neutral-300'
                   }`}
                 >
                   <Icon className="w-5 h-5" />
                   {name}
                 </button>
               ))}
+              <div className="border-t border-surface-light my-2" />
+              <button
+                onClick={handleSignOut}
+                className="flex items-center gap-3 px-4 py-2 rounded-lg text-red-500 hover:bg-red-500/10 transition-all font-medium"
+              >
+                <LogOut className="w-5 h-5" /> Sign Out
+              </button>
             </div>
-          </GlowingEffect>
+          </div>
 
-          {activeTab === 'profile' && (
-            <GlowingEffect className="bg-surface p-6 rounded-xl">
-              <div className="space-y-6">
-                <div className="flex items-center gap-6">
+          {/* Main Content */}
+          <div className="flex-1 space-y-8">
+            {/* Profile Tab */}
+            {activeTab === 'profile' && (
+              <GlowingEffect className="bg-surface p-6 rounded-xl">
+                <div className="flex items-center gap-6 mb-6">
                   <div className="relative">
                     <div className="w-24 h-24 rounded-full overflow-hidden bg-background-light">
                       {profile?.avatar_url ? (
@@ -215,135 +232,183 @@ export default function SettingsPage() {
                       disabled={uploading}
                     />
                   </div>
-                  <div>
-                    <h2 className="text-xl font-semibold">
-                      {profile?.full_name || user?.user_metadata?.full_name || user?.user_metadata?.name || 'User'}
-                    </h2>
-                    <p className="text-neutral">{profile?.email || user?.email}</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Full Name</label>
-                    <input
-                      type="text"
-                      value={profile?.full_name || user?.user_metadata?.full_name || user?.user_metadata?.name || ''}
-                      className="w-full bg-background px-4 py-2 rounded-lg border border-surface-light focus:outline-none focus:border-primary"
-                      disabled
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Email</label>
-                    <input
-                      type="email"
-                      value={profile?.email || user?.email || ''}
-                      className="w-full bg-background px-4 py-2 rounded-lg border border-surface-light focus:outline-none focus:border-primary"
-                      disabled
-                    />
-                  </div>
-                </div>
-              </div>
-            </GlowingEffect>
-          )}
-
-          {activeTab === 'account' && (
-            <GlowingEffect className="bg-surface p-6 rounded-xl">
-              <div className="space-y-6">
-                <h2 className="text-xl font-semibold">Connected Accounts</h2>
-                <div className="grid grid-cols-2 gap-4">
-                  {[
-                    { id: 'google', name: 'Google', icon: GoogleIcon },
-                    { id: 'github', name: 'GitHub', icon: Github },
-                    { id: 'twitter', name: 'Twitter', icon: Twitter },
-                    { id: 'linkedin', name: 'LinkedIn', icon: Linkedin }
-                  ].map(({ id, name, icon: Icon }) => (
-                    <button
-                      key={id}
-                      onClick={() => handleOAuthLogin(id)}
-                      className={`flex items-center justify-between p-4 rounded-lg border border-surface-light hover:bg-background-light transition-colors ${
-                        connectedAccounts[id] ? 'bg-background-light' : ''
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <Icon />
-                        <span>Connect with {name}</span>
+                  <div className="flex-1">
+                    {editMode ? (
+                      <div className="flex flex-col gap-2">
+                        <input
+                          type="text"
+                          value={editProfile.full_name}
+                          onChange={e => setEditProfile(p => ({ ...p, full_name: e.target.value }))}
+                          className="w-full bg-background px-4 py-2 rounded-lg border border-surface-light focus:outline-none focus:border-primary"
+                          placeholder="Full Name"
+                        />
+                        <input
+                          type="email"
+                          value={editProfile.email}
+                          onChange={e => setEditProfile(p => ({ ...p, email: e.target.value }))}
+                          className="w-full bg-background px-4 py-2 rounded-lg border border-surface-light focus:outline-none focus:border-primary"
+                          placeholder="Email"
+                        />
+                        <div className="flex gap-2 mt-2">
+                          <Button onClick={handleProfileSave} variant="primary">Save</Button>
+                          <Button onClick={() => setEditMode(false)} variant="secondary">Cancel</Button>
+                        </div>
                       </div>
-                      {connectedAccounts[id] && (
-                        <Check className="w-5 h-5 text-primary" />
-                      )}
-                    </button>
-                  ))}
+                    ) : (
+                      <>
+                        <h2 className="text-xl font-semibold">
+                          {profile?.full_name || user?.user_metadata?.full_name || user?.user_metadata?.name || 'User'}
+                        </h2>
+                        <p className="text-neutral">{profile?.email || user?.email}</p>
+                        <Button onClick={() => setEditMode(true)} variant="secondary" className="mt-2">Edit Profile</Button>
+                      </>
+                    )}
+                  </div>
                 </div>
-            
-              </div>
-            </GlowingEffect>
-          )}
+                {feedback && <div className="text-green-500 text-sm mb-2">{feedback}</div>}
+                {error && <div className="text-red-500 text-sm mb-2">{error}</div>}
+              </GlowingEffect>
+            )}
 
-          {activeTab === 'notifications' && (
-            <GlowingEffect className="bg-surface p-6 rounded-xl">
-              <div className="space-y-6">
-                <h2 className="text-xl font-semibold">Notification Preferences</h2>
-                <div className="space-y-4">
-                  <label className="flex items-center gap-2">
+            {/* Account Tab */}
+            {activeTab === 'account' && (
+              <GlowingEffect className="bg-surface p-6 rounded-xl">
+                <div className="mb-6">
+                  <h2 className="text-xl font-semibold mb-2">Change Password</h2>
+                  <div className="flex flex-col gap-2 max-w-md">
+                    <div className="relative">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        value={editPassword.current}
+                        onChange={e => setEditPassword(p => ({ ...p, current: e.target.value }))}
+                        className="w-full bg-background px-4 py-2 rounded-lg border border-surface-light focus:outline-none focus:border-primary"
+                        placeholder="Current Password"
+                      />
+                      <button type="button" className="absolute right-2 top-2" onClick={() => setShowPassword(s => !s)}>
+                        {showPassword ? <EyeOff className="w-4 h-4 text-neutral-400" /> : <Eye className="w-4 h-4 text-neutral-400" />}
+                      </button>
+                    </div>
                     <input
-                      type="checkbox"
-                      checked={profile?.preferences?.notifications}
-                      onChange={(e) => handlePreferenceChange('notifications', e.target.checked)}
-                      className="rounded border-surface-light"
+                      type={showPassword ? 'text' : 'password'}
+                      value={editPassword.new}
+                      onChange={e => setEditPassword(p => ({ ...p, new: e.target.value }))}
+                      className="w-full bg-background px-4 py-2 rounded-lg border border-surface-light focus:outline-none focus:border-primary"
+                      placeholder="New Password"
                     />
-                    <span>Enable Notifications</span>
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={editPassword.confirm}
+                      onChange={e => setEditPassword(p => ({ ...p, confirm: e.target.value }))}
+                      className="w-full bg-background px-4 py-2 rounded-lg border border-surface-light focus:outline-none focus:border-primary"
+                      placeholder="Confirm New Password"
+                    />
+                    <div className="flex gap-2 mt-2">
+                      <Button onClick={handlePasswordChange} variant="primary">Change Password</Button>
+                    </div>
+                  </div>
+                </div>
+                <div className="mb-6">
+                  <h2 className="text-xl font-semibold mb-2">Connected Accounts</h2>
+                  <div className="flex gap-4">
+                    <Button variant={connectedAccounts.google ? 'secondary' : 'primary'}>
+                      <span className="flex items-center gap-2"><Mail className="w-4 h-4" /> Google {connectedAccounts.google ? '(Connected)' : 'Connect'}</span>
+                    </Button>
+                    <Button variant={connectedAccounts.github ? 'secondary' : 'primary'}>
+                      <span className="flex items-center gap-2"><Github className="w-4 h-4" /> GitHub {connectedAccounts.github ? '(Connected)' : 'Connect'}</span>
+                    </Button>
+                  </div>
+                </div>
+                <div className="mb-6">
+                  <h2 className="text-xl font-semibold mb-2 text-red-500">Delete Account</h2>
+                  <Button onClick={handleDeleteAccount} variant="destructive" disabled={deleting}>
+                    <Trash2 className="w-4 h-4 mr-1" /> {deleting ? 'Deleting...' : 'Delete Account'}
+                  </Button>
+                </div>
+                {feedback && <div className="text-green-500 text-sm mb-2">{feedback}</div>}
+                {error && <div className="text-red-500 text-sm mb-2">{error}</div>}
+              </GlowingEffect>
+            )}
+
+            {/* Notifications Tab */}
+            {activeTab === 'notifications' && (
+              <GlowingEffect className="bg-surface p-6 rounded-xl">
+                <h2 className="text-xl font-semibold mb-4">Notification Preferences</h2>
+                <div className="flex flex-col gap-4 max-w-md">
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" checked={notificationPrefs.email} onChange={() => handleNotificationChange('email')} className="form-checkbox h-5 w-5 text-primary" />
+                    Email Notifications
+                  </label>
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" checked={notificationPrefs.inApp} onChange={() => handleNotificationChange('inApp')} className="form-checkbox h-5 w-5 text-primary" />
+                    In-App Notifications
+                  </label>
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" checked={notificationPrefs.product} onChange={() => handleNotificationChange('product')} className="form-checkbox h-5 w-5 text-primary" />
+                    Product Updates & News
                   </label>
                 </div>
-              </div>
-            </GlowingEffect>
-          )}
-
-          {activeTab === 'appearance' && (
-            <GlowingEffect className="bg-surface p-6 rounded-xl">
-              <div className="space-y-6">
-                <h2 className="text-xl font-semibold">Appearance Settings</h2>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Theme</label>
-                    <select
-                      value={profile?.preferences?.theme}
-                      onChange={(e) => handlePreferenceChange('theme', e.target.value)}
-                      className="w-full bg-background px-4 py-2 rounded-lg border border-surface-light focus:outline-none focus:border-primary"
-                    >
-                      <option value="light">Light</option>
-                      <option value="dark">Dark</option>
-                      <option value="system">System</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Language</label>
-                    <select
-                      value={profile?.preferences?.language}
-                      onChange={(e) => handlePreferenceChange('language', e.target.value)}
-                      className="w-full bg-background px-4 py-2 rounded-lg border border-surface-light focus:outline-none focus:border-primary"
-                    >
-                      <option value="en">English</option>
-                      <option value="es">Spanish</option>
-                      <option value="fr">French</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Timezone</label>
-                    <select
-                      value={profile?.preferences?.timezone}
-                      onChange={(e) => handlePreferenceChange('timezone', e.target.value)}
-                      className="w-full bg-background px-4 py-2 rounded-lg border border-surface-light focus:outline-none focus:border-primary"
-                    >
-                      <option value="UTC">UTC</option>
-                      <option value="EST">EST</option>
-                      <option value="PST">PST</option>
-                    </select>
-                  </div>
+                <div className="flex gap-2 mt-4">
+                  <Button variant="primary">Save Preferences</Button>
                 </div>
-              </div>
-            </GlowingEffect>
-          )}
+                {feedback && <div className="text-green-500 text-sm mb-2">{feedback}</div>}
+                {error && <div className="text-red-500 text-sm mb-2">{error}</div>}
+              </GlowingEffect>
+            )}
+
+            {/* Appearance Tab */}
+            {activeTab === 'appearance' && (
+              <GlowingEffect className="bg-surface p-6 rounded-xl">
+                <h2 className="text-xl font-semibold mb-4">Appearance</h2>
+                <div className="flex flex-col gap-4 max-w-md">
+                  <label className="block font-medium mb-1">Theme</label>
+                  <select
+                    value={appearance.theme}
+                    onChange={e => handleAppearanceChange('theme', e.target.value)}
+                    className="w-full bg-background px-4 py-2 rounded-lg border border-surface-light focus:outline-none focus:border-primary"
+                  >
+                    <option value="system">System</option>
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                  </select>
+                  <label className="block font-medium mb-1">Font Size</label>
+                  <select
+                    value={appearance.fontSize}
+                    onChange={e => handleAppearanceChange('fontSize', e.target.value)}
+                    className="w-full bg-background px-4 py-2 rounded-lg border border-surface-light focus:outline-none focus:border-primary"
+                  >
+                    <option value="normal">Normal</option>
+                    <option value="large">Large</option>
+                  </select>
+                </div>
+                <div className="flex gap-2 mt-4">
+                  <Button variant="primary">Save Appearance</Button>
+                  <Button variant="secondary" onClick={() => setAppearance({ theme: 'system', fontSize: 'normal' })}>Reset</Button>
+                </div>
+                {feedback && <div className="text-green-500 text-sm mb-2">{feedback}</div>}
+                {error && <div className="text-red-500 text-sm mb-2">{error}</div>}
+              </GlowingEffect>
+            )}
+
+            {/* Security Tab */}
+            {activeTab === 'security' && (
+              <GlowingEffect className="bg-surface p-6 rounded-xl">
+                <h2 className="text-xl font-semibold mb-4">Security</h2>
+                <div className="mb-4">
+                  <div className="text-neutral-400 text-sm">Last Login:</div>
+                  <div className="text-white font-medium">{securityInfo.lastLogin ? new Date(securityInfo.lastLogin).toLocaleString() : 'Unknown'}</div>
+                </div>
+                <div className="mb-4">
+                  <div className="text-neutral-400 text-sm mb-1">Active Sessions</div>
+                  <ul className="list-disc pl-6">
+                    {securityInfo.sessions.map((s, i) => (
+                      <li key={i} className="text-white text-sm">{s.device} - {s.time ? new Date(s.time).toLocaleString() : 'Unknown'}</li>
+                    ))}
+                  </ul>
+                </div>
+                <Button variant="secondary">Sign Out of All Devices</Button>
+              </GlowingEffect>
+            )}
+          </div>
         </div>
       </div>
     </div>

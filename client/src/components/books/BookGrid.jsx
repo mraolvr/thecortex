@@ -130,13 +130,13 @@ export default function BookGrid({ books, onBookSelect, onEditBook, onDeleteBook
         {/* Search and Filter Bar */}
         <div className="flex flex-col sm:flex-row gap-2">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-black" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-black dark:text-white" />
             <input
               type="text"
               placeholder="Search books..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-background-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full pl-10 pr-4 py-2 bg-white dark:bg-neutral-800 text-black dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               data-search-input
             />
           </div>
@@ -144,7 +144,7 @@ export default function BookGrid({ books, onBookSelect, onEditBook, onDeleteBook
           <div className="flex gap-2">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2 px-4 py-2 bg-background-light rounded-lg hover:bg-neutral transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-neutral-800 text-black dark:text-white rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
             >
               <Filter className="w-4 h-4" />
               Filters
@@ -154,7 +154,7 @@ export default function BookGrid({ books, onBookSelect, onEditBook, onDeleteBook
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-2 bg-neutral-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              className="px-4 py-2 bg-white dark:bg-neutral-800 text-black dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="title">Sort by Title</option>
               <option value="author">Sort by Author</option>
@@ -164,7 +164,7 @@ export default function BookGrid({ books, onBookSelect, onEditBook, onDeleteBook
 
             <button
               onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
-              className="px-4 py-2 bg-neutral-light rounded-lg hover:bg-neutral transition-colors"
+              className="px-4 py-2 bg-white dark:bg-neutral-800 text-black dark:text-white rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
             >
               {sortOrder === 'asc' ? '↑' : '↓'}
             </button>
@@ -180,13 +180,13 @@ export default function BookGrid({ books, onBookSelect, onEditBook, onDeleteBook
               exit={{ height: 0, opacity: 0 }}
               className="overflow-hidden"
             >
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-neutral-light rounded-lg">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-white dark:bg-neutral-800 rounded-lg">
                 <div>
                   <label className="block text-sm font-medium mb-2">Status</label>
                   <select
                     value={filters.status}
                     onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
-                    className="w-full px-3 py-2 bg-neutral rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full px-3 py-2 bg-white dark:bg-neutral-800 text-black dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   >
                     <option value="all">All</option>
                     <option value="reading">Reading</option>
@@ -200,7 +200,7 @@ export default function BookGrid({ books, onBookSelect, onEditBook, onDeleteBook
                   <select
                     value={filters.rating}
                     onChange={(e) => setFilters(prev => ({ ...prev, rating: e.target.value }))}
-                    className="w-full px-3 py-2 bg-neutral rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full px-3 py-2 bg-white dark:bg-neutral-800 text-black dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   >
                     <option value="all">All Ratings</option>
                     <option value="5">5 Stars</option>
@@ -214,7 +214,7 @@ export default function BookGrid({ books, onBookSelect, onEditBook, onDeleteBook
                   <select
                     value={filters.progress}
                     onChange={(e) => setFilters(prev => ({ ...prev, progress: e.target.value }))}
-                    className="w-full px-3 py-2 bg-neutral rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full px-3 py-2 bg-white dark:bg-neutral-800 text-black dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   >
                     <option value="all">All Progress</option>
                     <option value="not-started">Not Started</option>

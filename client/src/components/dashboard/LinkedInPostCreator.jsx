@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Send, Loader2 } from 'lucide-react';
 import GlowingEffect from '../ui/GlowingEffect';
 import useSocialPosts from '../../hooks/useSocialPosts';
+import Button from '../ui/Button';
 
 export default function LinkedInPostCreator() {
   const [postContent, setPostContent] = useState('');
@@ -145,10 +146,9 @@ export default function LinkedInPostCreator() {
         </div>
 
         <div className="flex justify-end gap-4">
-          <button
+          <Button
             onClick={handleGeneratePost}
             disabled={!postContent || isGenerating}
-            className="bg-primary hover:bg-primary-light text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isGenerating ? (
               <>
@@ -158,7 +158,7 @@ export default function LinkedInPostCreator() {
             ) : (
               'Generate Post'
             )}
-          </button>
+          </Button>
         </div>
 
         {generatedPost && (
@@ -169,10 +169,9 @@ export default function LinkedInPostCreator() {
             </div>
 
             <div className="flex justify-end">
-              <button
+              <Button
                 onClick={handleSendPost}
                 disabled={isSending}
-                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSending ? (
                   <>
@@ -185,7 +184,7 @@ export default function LinkedInPostCreator() {
                     Send Post
                   </>
                 )}
-              </button>
+              </Button>
             </div>
           </div>
         )}

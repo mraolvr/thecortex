@@ -2,6 +2,7 @@ import React from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { useUser } from '../../contexts/UserContext';
 import { Sun, Moon, RefreshCw } from 'lucide-react';
+import Button from '../ui/Button';
 
 const motivationalQuotes = [
   "The only way to do great work is to love what you do. - Steve Jobs",
@@ -11,7 +12,7 @@ const motivationalQuotes = [
   "The only limit to our realization of tomorrow will be our doubts of today. - Franklin D. Roosevelt"
 ];
 const mentorMessages = [
-  "Clarity precedes mastery—know your ‘why’ and the ‘how’ will follow",
+  "Clarity precedes mastery—know your 'why' and the 'how' will follow",
   "Leadership is not about being in charge; it's about taking care of those in your charge.",
   "Success is the result of disciplined people making disciplined choices.",
   "Your habits create your future; change your habits, change your life.",
@@ -102,14 +103,14 @@ const WelcomeBanner = () => {
           <div className="text-lg text-gray-700 dark:text-gray-200 italic text-center min-h-[60px] flex items-center justify-center">
             {loadingQuote ? 'Loading...' : errorQuote ? errorQuote : `"${quote}"`}
           </div>
-          <button
+          <Button
             onClick={fetchQuote}
             disabled={loadingQuote}
-            className="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors flex items-center gap-2 disabled:opacity-60"
+            className="mt-4 flex items-center gap-2"
           >
             <RefreshCw className="w-4 h-4" />
             New Quote
-          </button>
+          </Button>
         </div>
         {/* Mentor Message Section */}
         <div className="bg-white/70 dark:bg-gray-900/70 p-6 rounded-xl shadow flex flex-col items-center">
@@ -117,14 +118,14 @@ const WelcomeBanner = () => {
           <div className="text-lg text-gray-700 dark:text-gray-200 italic text-center min-h-[60px] flex items-center justify-center">
             {loadingMentor ? 'Loading...' : errorMentor ? errorMentor : mentorMessage ? mentorMessage : mentorMessages[Math.floor(Math.random() * mentorMessages.length)]}
           </div>
-          <button
+          <Button
             onClick={fetchMentorMessage}
             disabled={loadingMentor}
-            className="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors flex items-center gap-2 disabled:opacity-60"
+            className="mt-4 flex items-center gap-2"
           >
             <RefreshCw className="w-4 h-4" />
             New Mentor Message
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -276,7 +276,7 @@ export default function CreativeHub() {
                 <div className="text-center py-12 text-neutral">
                   <PenTool className="w-12 h-12 mx-auto mb-4" />
                   <p className="text-lg">No entries found</p>
-                  <button className="mt-4 text-primary hover:text-primary-light">
+                  <button className="mt-4 text-primary hover:text-white">
                     Create your first entry
                   </button>
                 </div>

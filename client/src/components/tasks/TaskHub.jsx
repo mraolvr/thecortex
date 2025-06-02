@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import useTaskStore from '../../stores/taskStore';
 import { supabase } from '../../services/supabase';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import Button from '../../components/ui/Button';
 
 function TaskDetailsModal({ task, projects, onClose, onEdit, onDelete, onAttachmentChange }) {
   const fileInputRef = useRef();
@@ -93,8 +94,12 @@ function TaskDetailsModal({ task, projects, onClose, onEdit, onDelete, onAttachm
           </div>
         </div>
         <div className="flex gap-2 mt-4">
-          <button onClick={onEdit} className="px-4 py-2 bg-yellow-500 text-black rounded">Edit</button>
-          <button onClick={onDelete} className="px-4 py-2 bg-red-500 text-black rounded">Delete</button>
+          <Button onClick={onEdit} variant="secondary">
+            Edit
+          </Button>
+          <Button onClick={onDelete} variant="destructive">
+            Delete
+          </Button>
         </div>
       </div>
     </div>
@@ -453,38 +458,37 @@ export default function TaskHub({ projects = [] }) {
 
   return (
     <div className="p-8 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Unified Task Hub</h1>
+      <h1 className="text-2xl font-bold mb-6 text-gray-100">Unified Task Hub</h1>
       {error && <div className="bg-red-100 text-red-700 p-2 mb-4 rounded">{error}</div>}
       <div className="mb-4">
-        <button
-          className="mb-2 px-3 py-1 bg-neutral-800 text-black rounded hover:bg-primary transition-colors"
+        <Button
           onClick={() => setShowFilters(v => !v)}
-          type="button"
+          variant="secondary"
         >
           {showFilters ? 'Hide Filters' : 'Show Filters'}
-        </button>
+        </Button>
         {showFilters && (
           <div className="flex flex-wrap gap-4 items-center">
-            <select value={groupBy} onChange={e => setGroupBy(e.target.value)} className="p-2 rounded border">
+            <select value={groupBy} onChange={e => setGroupBy(e.target.value)} className="p-2 rounded border bg-white/10 text-white border-white/20">
               <option value="project">Group by Project</option>
               <option value="priority">Group by Priority</option>
               <option value="status">Group by Status</option>
               <option value="dueDate">Group by Due Date</option>
               <option value="none">No Grouping</option>
             </select>
-            <select value={filterBy} onChange={e => setFilterBy(e.target.value)} className="p-2 rounded border">
+            <select value={filterBy} onChange={e => setFilterBy(e.target.value)} className="p-2 rounded border bg-white/10 text-white border-white/20">
               <option value="all">All Statuses</option>
               <option value="todo">To Do</option>
               <option value="in-progress">In Progress</option>
               <option value="done">Done</option>
             </select>
-            <select value={filterPriority} onChange={e => setFilterPriority(e.target.value)} className="p-2 rounded border">
+            <select value={filterPriority} onChange={e => setFilterPriority(e.target.value)} className="p-2 rounded border bg-white/10 text-white border-white/20">
               <option value="all">All Priorities</option>
               <option value="high">High</option>
               <option value="medium">Medium</option>
               <option value="low">Low</option>
             </select>
-            <select value={filterProject} onChange={e => setFilterProject(e.target.value)} className="p-2 rounded border">
+            <select value={filterProject} onChange={e => setFilterProject(e.target.value)} className="p-2 rounded border bg-white/10 text-white border-white/20">
               <option value="all">All Projects</option>
               {projects.map((p) => (
                 <option key={p.id} value={p.id}>{p.name}</option>
@@ -495,30 +499,30 @@ export default function TaskHub({ projects = [] }) {
               type="date"
               value={filterDue}
               onChange={e => setFilterDue(e.target.value)}
-              className="p-2 rounded border"
+              className="p-2 rounded border bg-white/10 text-white border-white/20"
               placeholder="Due Date"
             />
             <input
               type="text"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="p-2 rounded border flex-1 min-w-[180px]"
+              className="p-2 rounded border bg-white/10 text-white border-white/20 flex-1 min-w-[180px]"
               placeholder="Search tasks..."
             />
           </div>
         )}
       </div>
       {isLoading ? (
-        <div>Loading tasks...</div>
+        <div className="text-white">Loading tasks...</div>
       ) : (
         Object.entries(grouped).map(([group, tasks]) => (
           <div key={group} className="mb-8">
-            <h2 className="text-lg font-semibold mb-2">{group}</h2>
+            <h2 className="text-lg font-semibold mb-2 text-gray-100">{group}</h2>
             <div className="space-y-2">
               {tasks.map(task => (
                 <div
                   key={task.id}
-                  className="bg-background-light p-4 rounded flex flex-col items-start justify-between cursor-pointer"
+                  className="bg-white/5 p-4 rounded flex flex-col items-start justify-between cursor-pointer border border-white/10 hover:border-white/20 transition-colors"
                   onClick={() => {
                     if (editingTaskId !== task.id) {
                       setSelectedTask(task);
@@ -573,7 +577,7 @@ export default function TaskHub({ projects = [] }) {
                           name="project_id"
                           value={editForm.project_id}
                           onChange={handleEditInputChange}
-                          className="p-2 rounded border w-full box-border"
+                          className="p-2 rounded border bg-gray-900/80 border-white/10 text-white w-full box-border"
                         >
                           {projects.map((p) => (
                             <option key={p.id} value={p.id}>{p.name}</option>
@@ -602,21 +606,21 @@ export default function TaskHub({ projects = [] }) {
                       </div>
                       {editFormError && <div className="text-red-500 text-sm">{editFormError}</div>}
                       <div className="flex gap-2 mt-2">
-                        <button 
+                        <Button 
                           type="submit" 
-                          className="px-2 py-1 bg-primary text-black rounded disabled:opacity-50"
+                          variant="primary"
                           disabled={isUpdating}
                         >
                           {isUpdating ? 'Saving...' : 'Save'}
-                        </button>
-                        <button 
+                        </Button>
+                        <Button 
                           type="button" 
                           onClick={cancelEdit} 
-                          className="px-2 py-1 bg-neutral text-black rounded disabled:opacity-50"
+                          variant="secondary"
                           disabled={isUpdating}
                         >
                           Cancel
-                        </button>
+                        </Button>
                       </div>
                     </form>
                   ) : (
@@ -629,11 +633,18 @@ export default function TaskHub({ projects = [] }) {
                         <div className="text-xs text-neutral mt-1">Source: {task.source}</div>
                       </div>
                       <div className="flex gap-2 mt-3">
-                        <button onClick={() => updateTask(task.id, { status: task.status === 'done' ? 'todo' : 'done' })} className="px-2 py-1 bg-primary text-black rounded">
+                        <Button 
+                          onClick={() => updateTask(task.id, { status: task.status === 'done' ? 'todo' : 'done' })} 
+                          variant={task.status === 'done' ? 'secondary' : 'primary'}
+                        >
                           {task.status === 'done' ? 'Mark as To Do' : 'Complete'}
-                        </button>
-                        <button onClick={() => startEdit(task)} className="px-2 py-1 bg-yellow-500 text-black rounded">Edit</button>
-                        <button onClick={() => deleteTask(task.id)} className="px-2 py-1 bg-red-500 text-black rounded">Delete</button>
+                        </Button>
+                        <Button onClick={() => startEdit(task)} variant="secondary">
+                          Edit
+                        </Button>
+                        <Button onClick={() => deleteTask(task.id)} variant="destructive">
+                          Delete
+                        </Button>
                       </div>
                     </>
                   )}
@@ -711,7 +722,7 @@ export default function TaskHub({ projects = [] }) {
                   name="project_id"
                   value={modalEditForm.project_id}
                   onChange={handleModalEditInputChange}
-                  className="p-2 rounded border w-full box-border"
+                  className="p-2 rounded border bg-gray-900/80 border-white/10 text-white w-full box-border"
                 >
                   {projects.map((p) => (
                     <option key={p.id} value={p.id}>{p.name}</option>
@@ -721,21 +732,21 @@ export default function TaskHub({ projects = [] }) {
               </div>
               {modalEditError && <div className="text-red-500 text-sm">{modalEditError}</div>}
               <div className="flex gap-2 mt-2">
-                <button 
+                <Button 
                   type="submit" 
-                  className="px-4 py-2 bg-primary text-black rounded disabled:opacity-50"
+                  variant="primary"
                   disabled={isUpdating}
                 >
                   {isUpdating ? 'Saving...' : 'Save'}
-                </button>
-                <button 
+                </Button>
+                <Button 
                   type="button" 
                   onClick={() => setModalEditMode(false)} 
-                  className="px-4 py-2 bg-neutral text-black rounded disabled:opacity-50"
+                  variant="secondary"
                   disabled={isUpdating}
                 >
                   Cancel
-                </button>
+                </Button>
               </div>
             </form>
           </div>
@@ -808,7 +819,7 @@ export default function TaskHub({ projects = [] }) {
               <div key={a.url} className="flex items-center gap-2 text-sm">
                 <a href={a.url} target="_blank" rel="noopener noreferrer" className="text-primary underline">{a.name}</a>
                 <span className="text-xs text-neutral">({a.uploadedAt ? new Date(a.uploadedAt).toLocaleString() : ''})</span>
-                <button type="button" onClick={() => handleRemoveFormAttachment(a.url)} className="text-red-500 hover:text-red-700 ml-2">Remove</button>
+                <Button type="button" onClick={() => handleRemoveFormAttachment(a.url)} variant="destructive" className="ml-2">Remove</Button>
               </div>
             ))}
           </div>
@@ -819,7 +830,9 @@ export default function TaskHub({ projects = [] }) {
           </div>
         </div>
         {formError && <div className="text-red-500 text-sm">{formError}</div>}
-        <button type="submit" className="px-4 py-2 bg-primary text-black rounded">Add Task</button>
+        <Button type="submit" variant="primary">
+          Add Task
+        </Button>
       </form>
       <div className="mt-8">
         {/* Removed Google sign-in button */}

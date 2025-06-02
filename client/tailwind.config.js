@@ -1,3 +1,5 @@
+import colors from 'tailwindcss/colors';
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -8,46 +10,56 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Primary colors
-        primary: {
-          DEFAULT: '#3B82F6',
-          light: '#60A5FA',
-          dark: '#2563EB',
-        },
-        // Accent colors
-        accent: {
-          red: '#F05941',
-          gold: '#E8C872',
-        },
-        // Functional colors
-        success: '#4CAF50',
-        error: '#D32F2F',
-        neutral: '#9E9E9E',
-        'text-primary': '#333333',
-        // Background colors
+        // Minimal palette
+        primary: '#fff',
+        secondary: '#111',
+        neutral: colors.neutral,
+        'text-primary': '#f3f4f6',
         background: {
-          DEFAULT: '#681e70',
-          light: '#2D2D2D',
-          dark: '#171717',
+          DEFAULT: '#000',
+          light: '#18181b',
+          dark: '#0a0a0a',
         },
         surface: {
-          DEFAULT: '#681e70',
-          light: '#363636',
-          dark: '#1F1F1F',
+          DEFAULT: '#18181b',
+          light: '#232323',
+          dark: '#111',
         },
+        success: '#22c55e', // muted green
+        error: '#ef4444',   // muted red
       },
       fontFamily: {
-        sans: ['Metropolis', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
-        display: ['Metropolis', 'sans-serif'],
+        sans: [
+          'Metropolis',
+          'system-ui',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'Segoe UI',
+          'Roboto',
+          'Helvetica Neue',
+          'Arial',
+          'sans-serif'
+        ],
+        display: [
+          'Metropolis',
+          'system-ui',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'Segoe UI',
+          'Roboto',
+          'Helvetica Neue',
+          'Arial',
+          'sans-serif'
+        ],
       },
       fontSize: {
-        'heading-1': ['2rem', { lineHeight: '1.2', letterSpacing: '-0.02em' }],
-        'heading-2': ['1.5rem', { lineHeight: '1.25', letterSpacing: '-0.01em' }],
-        'heading-3': ['1.25rem', { lineHeight: '1.3', letterSpacing: '-0.005em' }],
-        'body-large': ['1.125rem', { lineHeight: '1.5' }],
-        'body': ['1rem', { lineHeight: '1.5' }],
-        'body-small': ['0.875rem', { lineHeight: '1.4', letterSpacing: '0.005em' }],
-        'caption': ['0.75rem', { lineHeight: '1.3', letterSpacing: '0.01em' }],
+        'heading-1': ['2rem', { lineHeight: '1.2', letterSpacing: '-0.02em', fontWeight: '700' }],
+        'heading-2': ['1.5rem', { lineHeight: '1.25', letterSpacing: '-0.01em', fontWeight: '600' }],
+        'heading-3': ['1.25rem', { lineHeight: '1.3', letterSpacing: '-0.005em', fontWeight: '600' }],
+        'body-large': ['1.125rem', { lineHeight: '1.6', letterSpacing: '0.01em' }],
+        'body': ['1rem', { lineHeight: '1.6', letterSpacing: '0.01em' }],
+        'body-small': ['0.875rem', { lineHeight: '1.5', letterSpacing: '0.01em' }],
+        'caption': ['0.75rem', { lineHeight: '1.4', letterSpacing: '0.02em' }],
       },
       spacing: {
         'micro': '0.25rem',
@@ -58,8 +70,8 @@ export default {
         'xlarge': '3rem',
       },
       boxShadow: {
-        'button': '0 2px 4px rgba(135, 35, 65, 0.15)',
-        'button-hover': '0 3px 6px rgba(135, 35, 65, 0.2)',
+        'button': '0 2px 4px rgba(0,0,0,0.15)',
+        'button-hover': '0 3px 6px rgba(0,0,0,0.2)',
         'card': '0 2px 8px rgba(0, 0, 0, 0.08)',
         'card-hover': '0 4px 12px rgba(0, 0, 0, 0.12)',
       },

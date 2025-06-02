@@ -66,7 +66,7 @@ export default function MediaLibrary() {
         <GlowingEffect className="bg-surface p-6 rounded-xl">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-4">
-              <button className="text-primary hover:text-primary-light transition-colors">
+              <button className="text-primary hover:text-white transition-colors">
                 + Upload Files
               </button>
               <div className="h-4 w-px bg-neutral"></div>

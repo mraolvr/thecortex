@@ -12,6 +12,7 @@ import Card from '../../components/ui/Card';
 import BookDetailsModal from '../../components/books/BookDetailsModal';
 import BookRecommendations from '../../components/books/BookRecommendations';
 import SectionHeader from '../../components/ui/SectionHeader';
+import Button from '../../components/ui/Button';
 
 export default function BookLibrary() {
   const { 
@@ -100,12 +101,12 @@ export default function BookLibrary() {
         <div className="fixed top-4 right-4 bg-red-500/10 border border-red-500 text-red-500 px-4 py-3 rounded-lg flex items-center space-x-1">
           <AlertCircle className="w-5 h-5" />
           <p>{error}</p>
-          <button 
+          <Button
             onClick={clearError}
             className="ml-2 hover:text-white transition-colors"
           >
             <X className="w-4 h-4" />
-          </button>
+          </Button>
         </div>
       )}
 
@@ -121,7 +122,7 @@ export default function BookLibrary() {
             />
 
             <div className="flex space-x-1 border-b border-surface-light/20">
-              <button
+              <Button
                 onClick={() => {
                   setEditingBook(null);
                   setShowForm(true);
@@ -137,7 +138,7 @@ export default function BookLibrary() {
                     <span>Add Book</span>
                   </>
                 )}
-              </button>
+              </Button>
             </div>
 
             <div className="grid grid-cols-12 gap-1">

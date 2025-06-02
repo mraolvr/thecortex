@@ -84,115 +84,86 @@ export default function Dashboard() {
     .slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-neutral-950  p-8">
-      <div className="max-w-[1600px] mx-auto">
-        <div className="grid grid-cols-12 gap-6">
+    <div className="p-8">
+      <div className="mx-auto">
+        <div className="grid grid-cols-12 gap-4">
           {/* Left Column - Goals, Tasks, Reading */}
           <div className="col-span-3 space-y-6">
-            <GradientCard>
-              <div className="bg-neutral-900/90 rounded-xl p-4 shadow-inner overflow-hidden relative">
-                <GoalsList />
-              </div>
-            </GradientCard>
-            <GradientCard>
-              <div className="bg-neutral-900/90 rounded-xl p-4 shadow-inner overflow-hidden relative">
-                <TasksList tasks={allTasks} updateTask={updateTask} />
-              </div>
-            </GradientCard>
-            <GradientCard>
-              <div className="">
-                <CurrentReading />
-              </div>
-            </GradientCard>
+            <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-2xl p-4 text-white">
+              <GoalsList />
+            </div>
+            <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-2xl p-4 text-white">
+              <TasksList tasks={allTasks} updateTask={updateTask} />
+            </div>
+            <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-2xl p-4 text-white">
+              <CurrentReading />
+            </div>
           </div>
-
           {/* Middle Column - Welcome, Social, Updates */}
           <div className="col-span-6 space-y-6">
-            <GradientCard>
-              <div className="bg-neutral-900/90 rounded-xl p-4 shadow-inner overflow-hidden relative">
-                <WelcomeBanner />
-              </div>
-            </GradientCard>
-            
-            {/* Social Media Section */}
-            <div className="grid grid-cols-2 gap-6">
-              <GradientCard>
-                <div className="bg-gradient-to-br from-white/80 via-blue-100/80 to-blue-400/80 dark:from-gray-900/80 dark:via-blue-900/80 dark:to-blue-800/80 border-l-8 border-blue-500 dark:border-blue-400 backdrop-blur-md rounded-xl p-4 shadow-inner overflow-hidden relative">
-                  <LinkedInPostCreator />
-                </div>
-              </GradientCard>
-              <GradientCard>
-                <div className="bg-gradient-to-br from-white/80 via-blue-50/80 to-emerald-100/80 dark:from-gray-900/80 dark:via-gray-800/80 dark:to-emerald-900/80 border-l-8 border-emerald-400 dark:border-emerald-500 backdrop-blur-md rounded-xl p-4 shadow-inner overflow-hidden relative">
-                  <TwitterPostCreator />
-                </div>
-              </GradientCard>
+            <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-2xl p-4 text-white">
+              <WelcomeBanner />
             </div>
-            <GradientCard>
-              <div className="bg-neutral-900/90 rounded-xl p-4 shadow-inner overflow-hidden relative">
-                <PostHistory />
-              </div>
-            </GradientCard>
-            
-            {/* Updates and Stats Section */}
             <div className="grid grid-cols-2 gap-6">
-              <GradientCard>
-                <div className="bg-gradient-to-br from-white/80 via-orange-100/80 to-pink-200/80 dark:from-gray-900/80 dark:via-orange-900/80 dark:to-pink-900/80 border-l-8 border-orange-400 dark:border-pink-500 backdrop-blur-md rounded-xl p-4 shadow-inner overflow-hidden relative">
-                  <h2 className="text-xl font-semibold mb-4 text-orange-700 dark:text-pink-200">Latest Updates</h2>
-                  <div className="space-y-4">
-                    {allUpdates.length === 0 ? (
-                      <div className="text-orange-900 dark:text-pink-100">No recent updates</div>
-                    ) : (
-                      allUpdates.map((update, idx) => (
-                        <div key={idx} className="bg-white/10 p-4 rounded-lg flex flex-col">
-                          <span className="text-xs text-orange-400 dark:text-pink-200 mb-1">{new Date(update.time).toLocaleString()}</span>
-                          <span className="font-semibold text-orange-900 dark:text-pink-100">{update.title}</span>
-                          <span className="text-sm text-orange-900 dark:text-pink-100">{update.message}</span>
-                        </div>
-                      ))
-                    )}
+              <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-2xl p-4 text-white">
+                <LinkedInPostCreator />
+              </div>
+              <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-2xl p-4 text-white">
+                <TwitterPostCreator />
+              </div>
+            </div>
+            <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-2xl p-4 text-white">
+              <PostHistory />
+            </div>
+            <div className="grid grid-cols-2 gap-6">
+              <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-2xl p-4 text-white">
+                <h2 className="text-xl font-bold mb-4">Latest Updates</h2>
+                <div className="space-y-4">
+                  {allUpdates.length === 0 ? (
+                    <div className="text-neutral-400">No recent updates</div>
+                  ) : (
+                    allUpdates.map((update, idx) => (
+                      <div key={idx} className="bg-neutral-800 p-4 rounded-lg flex flex-col">
+                        <span className="text-xs text-neutral-400 mb-1">{new Date(update.time).toLocaleString()}</span>
+                        <span className="font-semibold text-white">{update.title}</span>
+                        <span className="text-sm text-neutral-200">{update.message}</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+              <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-2xl p-4 text-white">
+                <h2 className="text-xl font-bold mb-4">Quick Stats</h2>
+                <div className="space-y-4">
+                  <div className="bg-neutral-800 p-4 rounded-lg">
+                    <p className="text-2xl font-bold text-white">{avgGoalProgress}%</p>
+                    <p className="text-sm text-neutral-400">Weekly Goal Progress</p>
+                  </div>
+                  <div className="bg-neutral-800 p-4 rounded-lg">
+                    <p className="text-2xl font-bold text-white">{completedTasks}</p>
+                    <p className="text-sm text-neutral-400">Tasks Completed</p>
+                  </div>
+                  <div className="bg-neutral-800 p-4 rounded-lg">
+                    <p className="text-2xl font-bold text-white">{booksRead}</p>
+                    <p className="text-sm text-neutral-400">Books Read</p>
+                  </div>
+                  <div className="bg-neutral-800 p-4 rounded-lg">
+                    <p className="text-2xl font-bold text-white">{pagesRead}</p>
+                    <p className="text-sm text-neutral-400">Pages Read</p>
                   </div>
                 </div>
-              </GradientCard>
-
-              <GradientCard>
-                <div className="bg-gradient-to-br from-white/80 via-green-100/80 to-blue-200/80 dark:from-gray-900/80 dark:via-green-900/80 dark:to-blue-900/80 border-l-8 border-green-400 dark:border-blue-500 backdrop-blur-md rounded-xl p-4 shadow-inner overflow-hidden relative">
-                  <h2 className="text-xl font-semibold mb-4 text-green-700 dark:text-blue-200">Quick Stats</h2>
-                  <div className="space-y-4">
-                    <div className="bg-white/10 p-4 rounded-lg">
-                      <p className="text-2xl font-semibold text-green-900 dark:text-blue-100">{avgGoalProgress}%</p>
-                      <p className="text-sm text-green-700 dark:text-blue-200">Weekly Goal Progress</p>
-                    </div>
-                    <div className="bg-white/10 p-4 rounded-lg">
-                      <p className="text-2xl font-semibold text-green-900 dark:text-blue-100">{completedTasks}</p>
-                      <p className="text-sm text-green-700 dark:text-blue-200">Tasks Completed</p>
-                    </div>
-                    <div className="bg-white/10 p-4 rounded-lg">
-                      <p className="text-2xl font-semibold text-green-900 dark:text-blue-100">{booksRead}</p>
-                      <p className="text-sm text-green-700 dark:text-blue-200">Books Read</p>
-                    </div>
-                    <div className="bg-white/10 p-4 rounded-lg">
-                      <p className="text-2xl font-semibold text-green-900 dark:text-blue-100">{pagesRead}</p>
-                      <p className="text-sm text-green-700 dark:text-blue-200">Pages Read</p>
-                    </div>
-                  </div>
-                </div>
-              </GradientCard>
+              </div>
             </div>
           </div>
-
           {/* Right Column - Agenda and Notifications */}
           <div className="col-span-3 space-y-6">
-            <div className="sticky top-24 space-y-6">
-              <GradientCard>
-                <div className="bg-neutral-900/90 rounded-xl p-4 shadow-inner overflow-hidden relative">
-                  <NotificationCard />
-                </div>
-              </GradientCard>
-              <GradientCard>
-                <div className="bg-neutral-900/90 rounded-xl p-4 shadow-inner overflow-hidden relative">
-                  <TodayAgenda />
-                </div>
-              </GradientCard>
+            <div className="space-y-6">
+              <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-2xl p-4 text-white">
+                <NotificationCard />
+              </div>
+              <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-2xl p-4 text-white">
+                <TodayAgenda />
+              </div>
             </div>
           </div>
         </div>

@@ -1,149 +1,38 @@
-import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 
 const UserContext = createContext();
 
 export function UserProvider({ children }) {
-  const [user, setUser] = useState(null);
+  const [user, setUserState] = useState(null);
   const [profile, setProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [mounted, setMounted] = useState(true);
-
-  const setUserState = useCallback((newUser) => {
-    if (mounted) {
-      console.log('Setting user state:', newUser ? 'user present' : 'null');
-      setUser(newUser);
-      if (!newUser) {
-        setProfile(null);
-      }
-    }
-  }, [mounted]);
-
-  const fetchProfile = useCallback(async (userId) => {
-    if (!userId) return;
-    
-    try {
-      console.log('Fetching profile for user:', userId);
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-      if (error) {
-        console.error('Error fetching profile:', error);
-        // If profile doesn't exist, create it
-        if (error.code === 'PGRST116') {
-          const { data: userData } = await supabase.auth.getUser();
-          if (userData?.user) {
-            console.log('Creating new profile for user:', userData.user.id);
-            const newProfile = {
-              id: userId,
-              email: userData.user.email,
-              full_name: userData.user.user_metadata?.full_name || userData.user.user_metadata?.name,
-              avatar_url: userData.user.user_metadata?.avatar_url,
-              preferences: {
-                notifications: { email: true, inApp: true, product: false },
-                appearance: { theme: 'system', fontSize: 'normal' }
-              }
-            };
-            
-            const { error: insertError } = await supabase
-              .from('profiles')
-              .insert(newProfile);
-            
-            if (insertError) {
-              console.error('Error creating profile:', insertError);
-              return;
-            }
-            
-            if (mounted) {
-              console.log('New profile created:', newProfile);
-              setProfile(newProfile);
-            }
-          }
-        }
-        return;
-      }
-      
-      if (mounted) {
-        console.log('Profile fetched successfully:', data);
-        setProfile(data);
-      }
-    } catch (error) {
-      console.error('Error in fetchProfile:', error);
-    } finally {
-      if (mounted) {
-        setIsLoading(false);
-      }
-    }
-  }, [mounted]);
-
-  const updateProfile = useCallback(async (updates) => {
-    if (!user?.id) return;
-
-    try {
-      setIsLoading(true);
-      console.log('Updating profile for user:', user.id, 'with updates:', updates);
-      const { data, error } = await supabase
-        .from('profiles')
-        .update(updates)
-        .eq('id', user.id)
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Error updating profile:', error);
-        throw error;
-      }
-      
-      if (mounted && data) {
-        console.log('Profile updated successfully:', data);
-        setProfile(data);
-      }
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      throw error;
-    } finally {
-      if (mounted) {
-        setIsLoading(false);
-      }
-    }
-  }, [user?.id, mounted]);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     
+    // Get initial session
     const initializeAuth = async () => {
       try {
-        setIsLoading(true);
         const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('Error getting session:', error);
-          throw error;
-        }
+        if (error) throw error;
         
         if (session?.user) {
           console.log('Initial session found:', session.user.id);
           setUserState(session.user);
           await fetchProfile(session.user.id);
-        } else {
-          console.log('No initial session found');
-          setUserState(null);
         }
       } catch (error) {
-        console.error('Error initializing auth:', error);
-        setUserState(null);
+        console.error('Error getting initial session:', error);
       } finally {
-        if (mounted) {
-          setIsLoading(false);
-        }
+        setIsLoading(false);
       }
     };
 
     initializeAuth();
 
+    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event, session?.user?.id);
       
@@ -156,6 +45,7 @@ export function UserProvider({ children }) {
       } else if (event === 'SIGNED_OUT') {
         console.log('Clearing user on sign out');
         setUserState(null);
+        setProfile(null);
       }
     });
 
@@ -163,13 +53,61 @@ export function UserProvider({ children }) {
       setMounted(false);
       subscription.unsubscribe();
     };
-  }, [fetchProfile, setUserState, mounted]);
+  }, []);
+
+  const fetchProfile = async (userId) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) throw error;
+      setProfile(data);
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    }
+  };
+
+  const updateProfile = async (updates) => {
+    try {
+      if (!user) throw new Error('No user logged in');
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .update(updates)
+        .eq('id', user.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      setProfile(data);
+      return data;
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      throw error;
+    }
+  };
+
+  const signOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      setUserState(null);
+      setProfile(null);
+    } catch (error) {
+      console.error('Error signing out:', error);
+      throw error;
+    }
+  };
 
   const value = useMemo(() => ({
     user,
     profile,
     isLoading,
-    updateProfile
+    updateProfile,
+    signOut
   }), [user, profile, isLoading, updateProfile]);
 
   return (

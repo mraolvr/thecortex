@@ -26,10 +26,18 @@ const useProjectStore = create(
       addProject: async (project) => {
         set({ isLoading: true });
         try {
+          // Get the current user
+          const { data: { user }, error: userError } = await supabase.auth.getUser();
+          if (userError || !user) {
+            console.error('No authenticated user found:', userError);
+            set({ isLoading: false, error: 'Not signed in' });
+            return undefined;
+          }
           const { data, error } = await supabase
             .from('projects')
             .insert([{
               ...project,
+              user_id: user.id,
               progress: 0,
               status: project.status || 'planning',
               created_at: new Date().toISOString(),
@@ -43,8 +51,10 @@ const useProjectStore = create(
             isLoading: false,
             error: null
           }));
+          return data;
         } catch (error) {
           set({ isLoading: false, error: error.message });
+          return undefined;
         }
       },
       // Update a project

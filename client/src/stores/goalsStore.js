@@ -29,15 +29,23 @@ const useGoalsStore = create(
       addGoal: async (goal) => {
         set({ isLoading: true });
         try {
+          // Get the current user
+          const { data: { user }, error: userError } = await supabase.auth.getUser();
+          if (userError || !user) {
+            console.error('No authenticated user found:', userError);
+            set({ isLoading: false, error: 'Not signed in' });
+            return undefined;
+          }
           console.log('Attempting to add goal:', goal);
           const { data, error } = await supabase
             .from('goals')
             .insert([{
+              user_id: user.id,
               title: goal.title,
               description: goal.description,
               priority: goal.priority,
               due_date: goal.dueDate,
-                  progress: 0,
+              progress: 0,
               status: goal.status || 'active',
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),

@@ -40,10 +40,18 @@ const useTaskStore = create(
       addTask: async (task) => {
         set({ isLoading: true });
         try {
+          // Get the current user
+          const { data: { user }, error: userError } = await supabase.auth.getUser();
+          if (userError || !user) {
+            console.error('No authenticated user found:', userError);
+            set({ isLoading: false, error: 'Not signed in' });
+            return undefined;
+          }
           const { data, error } = await supabase
             .from('tasks')
             .insert([{
               ...task,
+              user_id: user.id,
               source: 'supabase',
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString()
@@ -56,8 +64,10 @@ const useTaskStore = create(
             isLoading: false,
             error: null
           }));
+          return data;
         } catch (error) {
           set({ isLoading: false, error: error.message });
+          return undefined;
         }
       },
       // Update a task

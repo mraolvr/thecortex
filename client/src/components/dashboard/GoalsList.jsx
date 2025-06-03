@@ -232,69 +232,14 @@ export default function GoalsList() {
               className="p-4 bg-neutral-950 rounded-lg space-y-3 group"
             >
               <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  {editingGoal === goal.id ? (
-                    <div className="space-y-3">
-                      <input
-                        type="text"
-                        value={editForm.title || ''}
-                        onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
-                        className="w-full bg-background px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-primary"
-                        autoFocus
-                      />
-                      <textarea
-                        value={editForm.description || ''}
-                        onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                        className="w-full px-2 py-1 bg-background rounded focus:outline-none focus:ring-2 focus:ring-primary resize-none h-20"
-                        placeholder="Description (optional)"
-                      />
-                      <div className="flex gap-2">
-                        <select
-                          value={editForm.priority || 'medium'}
-                          onChange={(e) => setEditForm({ ...editForm, priority: e.target.value })}
-                          className="px-2 py-1 bg-background rounded text-sm"
-                        >
-                          <option value="low">Low</option>
-                          <option value="medium">Medium</option>
-                          <option value="high">High</option>
-                        </select>
-                        <input
-                          type="date"
-                          value={editForm.dueDate || ''}
-                          onChange={(e) => setEditForm({ ...editForm, dueDate: e.target.value })}
-                          className="px-2 py-1 bg-background rounded text-sm"
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <div>
-                      <h3 className="font-medium text-lg">{goal.title}</h3>
-                      {goal.description && (
-                        <p className="text-neutral mt-1">{goal.description}</p>
-                      )}
-                      <div className="flex gap-2 mt-2 text-xs">
-                        <span className={`px-2 py-0.5 bg-background rounded ${priorityColors[goal.priority]}`}>
-                          {goal.priority}
-                        </span>
-                        <span className="px-2 py-0.5 bg-background rounded text-neutral">
-                          {getDaysRemaining(goal.due_date)}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                
-                <div className="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <h3 className="flex-1 truncate font-medium text-lg">{goal.title}</h3>
+                <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity ml-2">
                   {editingGoal === goal.id ? (
                     <>
                       <button
                         type="button"
                         tabIndex={0}
-                        onClick={() => {
-                          console.log('Save button clicked for goalId:', goal.id);
-                          console.log('editForm state:', editForm);
-                          handleSaveEdit(goal.id);
-                        }}
+                        onClick={() => { handleSaveEdit(goal.id); }}
                         className="p-1 text-primary hover:text-primary-dark transition-colors"
                       >
                         <Check className="w-4 h-4" />
@@ -323,6 +268,13 @@ export default function GoalsList() {
                     </>
                   )}
                 </div>
+              </div>
+              {goal.description && (
+                <p className="truncate text-neutral mt-1">{goal.description}</p>
+              )}
+              <div className="flex gap-2 mt-2 text-xs">
+                <span className={`px-2 py-0.5 bg-background rounded ${priorityColors[goal.priority]}`}>{goal.priority}</span>
+                <span className="px-2 py-0.5 bg-background rounded text-neutral">{getDaysRemaining(goal.due_date)}</span>
               </div>
 
               <div className="space-y-2">

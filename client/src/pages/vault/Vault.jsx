@@ -243,7 +243,7 @@ export default function Vault() {
 
   if (!isUnlocked) {
     return (
-      <div className="min-h-screen bg-neutral-950 p-8 flex items-center justify-center">
+      <div className="min-h-screen  p-8 flex items-center justify-center">
         <GlowingEffect className="bg-neutral-1200 p-6 rounded-xl max-w-md w-full">
           <h2 className="text-xl font-semibold mb-4">Enter Passcode</h2>
           {feedback.message && (
@@ -256,7 +256,7 @@ export default function Vault() {
             value={passcode}
             onChange={(e) => setPasscode(e.target.value)}
             placeholder="Enter passcode..."
-            className="w-full bg-background px-4 py-2 rounded-lg border border-surface focus:outline-none focus:border-primary mb-4"
+            className="w-full bg-background-light px-4 py-2 rounded-lg border border-surface focus:outline-none focus:border-primary mb-4"
           />
           <Button
             onClick={handleUnlock}
@@ -270,7 +270,7 @@ export default function Vault() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-950 p-8">
+    <div className="min-h-screen bg-neutral-light p-8">
       <div className="max-w-[1600px] mx-auto">
         <SectionHeader 
           title="Secure Vault"
@@ -393,19 +393,19 @@ export default function Vault() {
                           <div className="p-2 rounded-lg" style={{ background: '#18181b' }}>
                             {getItemIcon(item.category)}
                           </div>
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-lg text-gray-50 truncate flex items-center gap-1">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-lg text-gray-50 truncate flex items-center gap-1 overflow-hidden text-ellipsis">
                               {item.name}
                               {/* Star for favorite/pin (UI only) */}
                               <Star className="w-4 h-4 text-yellow-400 opacity-60 hover:opacity-100 transition-opacity cursor-pointer" title="Pin/Favorite (coming soon)" />
                             </h3>
                             <div className="flex items-center gap-2 mt-1">
-                              <span className="text-xs px-2 py-1 rounded-full" style={{ background: '#23272e', color: '#a5b4fc' }}>{item.category}</span>
+                              <span className="text-xs px-2 py-1 rounded-full truncate max-w-[100px]" style={{ background: '#23272e', color: '#a5b4fc' }}>{item.category}</span>
                             </div>
                           </div>
                         </div>
                         <div className="flex items-center justify-between mt-auto">
-                          <span className="text-xs text-neutral-400">Last accessed: {item.updated_at ? new Date(item.updated_at).toLocaleDateString() : 'N/A'}</span>
+                          <span className="text-xs text-neutral-400 truncate max-w-[120px]">Last accessed: {item.updated_at ? new Date(item.updated_at).toLocaleDateString() : 'N/A'}</span>
                           <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <Button
                               onClick={e => { e.stopPropagation(); setSelectedItem(item); setIsEditing(true); }}
@@ -435,7 +435,7 @@ export default function Vault() {
 
       {/* Add/Edit Category Modal */}
       {showCategoryModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black flex items-center justify-center z-50">
           <GlowingEffect className="bg-surface p-6 rounded-xl max-w-md w-full">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">
@@ -462,7 +462,7 @@ export default function Vault() {
                   value={newCategory.name}
                   onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
                   placeholder="Category Name..."
-                  className="w-full bg-background px-4 py-2 rounded-lg border border-surface focus:outline-none focus:border-primary"
+                  className="w-fullbg-black/60 backdrop-blur-xlbg-black/60 backdrop-blur-xl px-4 py-2 rounded-lg border border-surface focus:outline-none focus:border-primary"
                 />
                 <div className="flex items-center space-x-4">
                   <select
@@ -498,7 +498,7 @@ export default function Vault() {
 
       {/* Delete Category Confirmation Modal */}
       {showDeleteConfirm && categoryToDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <GlowingEffect className="bg-surface p-6 rounded-xl max-w-md w-full">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">Delete Category</h2>
@@ -544,7 +544,7 @@ export default function Vault() {
 
       {/* Add New Item Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xl flex items-center justify-center z-50">
           <GlowingEffect className="bg-surface p-6 rounded-xl max-w-md w-full">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">Add New Item</h2>
@@ -611,8 +611,8 @@ export default function Vault() {
 
       {/* View/Edit Item Modal */}
       {selectedItem && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <GlowingEffect className="bg-surface p-6 rounded-xl max-w-md w-full">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xl flex items-center justify-center z-50">
+          <GlowingEffect className="bg-black p-6 rounded-xl max-w-md w-full">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">{isEditing ? 'Edit Item' : selectedItem.name}</h2>
               <Button

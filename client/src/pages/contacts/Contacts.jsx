@@ -281,7 +281,7 @@ export default function Contacts() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 p-10">
+    <div className="min-h-screen  p-10">
       <div className="max-w-[1600px] mx-auto">
         <SectionHeader
           title="Contacts"
@@ -463,8 +463,8 @@ export default function Contacts() {
 
       {/* Add/Edit Contact Modal */}
       {(showAddModal || selectedContact) && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <GlowingEffect className="bg-surface p-6 rounded-xl max-w-2xl w-full">
+        <div className="fixed inset-0 bg-black backdrop-blur-xl flex items-center justify-center z-50">
+          <GlowingEffect className="bg-black/60 backdrop-blur-xl  p-6 rounded-xl max-w-2xl w-full">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">
                 {isEditing ? 'Edit Contact' : showAddModal ? 'Add New Contact' : selectedContact.name}
@@ -488,7 +488,7 @@ export default function Contacts() {
               }}>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="col-span-2 flex items-center space-x-4">
-                    <div className="w-24 h-24 rounded-full overflow-hidden bg-background flex-shrink-0">
+                    <div className="w-24 h-24 rounded-full overflow-hidden bg-black backdrop-blur-xl  flex-shrink-0">
                       {(showAddModal ? newContact.photo : selectedContact?.photo) ? (
                         <img
                           src={showAddModal ? newContact.photo : selectedContact.photo}

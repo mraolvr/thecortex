@@ -37,34 +37,28 @@ export function UserProvider({ children }) {
           const { data: userData } = await supabase.auth.getUser();
           if (userData?.user) {
             console.log('Creating new profile for user:', userData.user.id);
+            const newProfile = {
+              id: userId,
+              email: userData.user.email,
+              full_name: userData.user.user_metadata?.full_name || userData.user.user_metadata?.name,
+              avatar_url: userData.user.user_metadata?.avatar_url,
+              preferences: {
+                notifications: { email: true, inApp: true, product: false },
+                appearance: { theme: 'system', fontSize: 'normal' }
+              }
+            };
+            
             const { error: insertError } = await supabase
               .from('profiles')
-              .insert({
-                id: userId,
-                email: userData.user.email,
-                full_name: userData.user.user_metadata?.full_name || userData.user.user_metadata?.name,
-                avatar_url: userData.user.user_metadata?.avatar_url
-              });
+              .insert(newProfile);
             
             if (insertError) {
               console.error('Error creating profile:', insertError);
               return;
             }
             
-            // Fetch the newly created profile
-            const { data: newProfile, error: fetchError } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', userId)
-              .single();
-            
-            if (fetchError) {
-              console.error('Error fetching new profile:', fetchError);
-              return;
-            }
-            
-            if (mounted && newProfile) {
-              console.log('New profile created and fetched:', newProfile);
+            if (mounted) {
+              console.log('New profile created:', newProfile);
               setProfile(newProfile);
             }
           }

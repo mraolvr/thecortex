@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Edit, Trash2, BookOpen, LayoutGrid, List, Star, Keyboard, X, Book, Search, Filter, ChevronDown } from 'lucide-react';
+import { Edit, Trash2, BookOpen, LayoutGrid, List, Star, Keyboard, X, Book, Search, Filter, ChevronDown, Check, ThumbsUp } from 'lucide-react';
 import BookRecommendations from './BookRecommendations';
 import { useState, useEffect, useMemo } from 'react';
 import Card from '../../components/ui/Card';
@@ -248,34 +248,30 @@ export default function BookGrid({ books, onBookSelect, onEditBook, onDeleteBook
               <Card
                 key={book.id}
                 accent="blue"
-                icon={Book}
-                title={book.title}
-                className="p-4 cursor-pointer hover:scale-[1.02] transition-transform"
+                className="p-0 cursor-pointer hover:scale-[1.02] transition-transform flex flex-col h-full"
                 onClick={() => onBookSelect(book)}
               >
-                <div className="aspect-[3/4] relative">
+                <div className="aspect-[3/4] relative w-full rounded-t-xl overflow-hidden">
                   <BookCover url={book.cover_url} alt={book.title} title={book.title} author={book.author} />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <p className="text-sm text-white/80 line-clamp-1">{book.author}</p>
-                  </div>
                 </div>
-                <div className="p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {renderRating(book.rating)}
+                <div className="flex-1 flex flex-col p-4 gap-2">
+                  <div>
+                    <div className="font-semibold text-lg text-white truncate" title={book.title}>{book.title}</div>
+                    <div className="text-neutral-400 text-sm truncate" title={book.author}>{book.author}</div>
+                  </div>
+                  <div className="flex items-center gap-2 mt-1">
+                    {renderRating(book.rating)}
+                  </div>
+                  <div className="flex items-center gap-2 mt-1">
+                    <div className="w-full bg-neutral-light rounded-full h-1.5">
+                      <div
+                        className="bg-primary rounded-full h-1.5 transition-all"
+                        style={{ width: `${book.progress}%` }}
+                      />
                     </div>
-                    <span className="text-sm text-neutral">
-                      {book.progress}% Complete
-                    </span>
+                    <span className="text-xs text-neutral min-w-[32px] text-right">{book.progress}%</span>
                   </div>
-                  <div className="w-full bg-neutral-light rounded-full h-1.5">
-                    <div
-                      className="bg-primary rounded-full h-1.5 transition-all"
-                      style={{ width: `${book.progress}%` }}
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 mt-2">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -283,6 +279,7 @@ export default function BookGrid({ books, onBookSelect, onEditBook, onDeleteBook
                       }}
                       className="p-2 hover:bg-neutral rounded-lg transition-colors"
                       disabled={isLoading}
+                      title="Edit"
                     >
                       <Edit className="w-4 h-4" />
                     </button>
@@ -293,6 +290,7 @@ export default function BookGrid({ books, onBookSelect, onEditBook, onDeleteBook
                       }}
                       className="p-2 hover:bg-neutral rounded-lg transition-colors text-red-500"
                       disabled={isLoading}
+                      title="Delete"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -305,7 +303,7 @@ export default function BookGrid({ books, onBookSelect, onEditBook, onDeleteBook
                       disabled={isLoading || book.status === 'completed'}
                       title={book.status === 'completed' ? 'Completed' : 'Mark as Complete'}
                     >
-                      {book.status === 'completed' ? '✓' : 'Complete'}
+                      {book.status === 'completed' ? <ThumbsUp className="w-4 h-4" /> : <Check className="w-4 h-4" />}
                     </button>
                   </div>
                 </div>
@@ -379,7 +377,7 @@ export default function BookGrid({ books, onBookSelect, onEditBook, onDeleteBook
                         disabled={isLoading || book.status === 'completed'}
                         title={book.status === 'completed' ? 'Completed' : 'Mark as Complete'}
                       >
-                        {book.status === 'completed' ? '✓' : 'Complete'}
+                        {book.status === 'completed' ? <ThumbsUp className="w-4 h-4" /> : <Check className="w-4 h-4" />}
                       </button>
                     </div>
                   </div>

@@ -854,7 +854,7 @@ export default function GuidanceHub() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 p-8">
+    <div className="min-h-screen p-8">
       <div className="max-w-[1600px] mx-auto space-y-6">
         <GlowingEffect className="bg-neutral-950 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-surface-light/20">
           <div className="flex items-center justify-between mb-6">
@@ -938,78 +938,22 @@ export default function GuidanceHub() {
 
                 {/* Input Area */}
                 <div className="flex flex-col gap-4">
-                  {/* Document Upload Area */}
-                  <div className="flex gap-4">
-                    <div 
-                      className="flex-1 bg-white/5 backdrop-blur-sm p-4 rounded-xl border border-white/10 border-dashed hover:border-white/30 transition-all duration-200 cursor-pointer group"
-                      onClick={() => document.getElementById('fileInput').click()}
-                      onDragOver={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        e.currentTarget.classList.add('border-white/30', 'bg-white/10');
-                      }}
-                      onDragLeave={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        e.currentTarget.classList.remove('border-white/30', 'bg-white/10');
-                      }}
-                      onDrop={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        e.currentTarget.classList.remove('border-white/30', 'bg-white/10');
-                        const files = e.dataTransfer.files;
-                        if (files.length > 0) {
-                          handleFileUpload({ target: { files } });
-                        }
-                      }}
-                    >
-                      <input
-                        type="file"
-                        id="fileInput"
-                        className="hidden"
-                        onChange={handleFileUpload}
-                        accept=".txt,.pdf,.doc,.docx,.jpg,.jpeg,.png"
-                      />
-                      {uploadingFile ? (
-                        <div className="flex flex-col items-center gap-3 text-white/80">
-                          <div className="flex items-center gap-3">
-                            {React.createElement(getFileIcon(uploadingFile.type), { className: 'w-6 h-6' })}
-                            <div>
-                              <p className="text-sm font-medium">{uploadingFile.name}</p>
-                              <p className="text-xs text-white/60">{formatFileSize(uploadingFile.size)}</p>
-                            </div>
-                          </div>
-                          <div className="w-full bg-white/10 rounded-full h-2">
-                            <div 
-                              className="bg-gradient-to-r from-primary to-primary-light h-2 rounded-full transition-all duration-300"
-                              style={{ width: `${uploadProgress}%` }}
-                            />
-                          </div>
-                          {filePreview && (
-                            <div className="mt-2 max-w-[200px] rounded-lg overflow-hidden">
-                              <img src={filePreview} alt="Preview" className="w-full h-auto" />
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-center gap-3 text-white/60 group-hover:text-white/80 transition-colors duration-200">
-                          <FileUp className="w-6 h-6" />
-                          <div className="text-center">
-                            <p className="text-sm font-medium">Drop files here or click to upload</p>
-                            <p className="text-xs mt-1">Supports: TXT, PDF, DOC, DOCX, JPG, PNG</p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
                   {/* Message Input Area */}
                   <div className="flex gap-4 bg-white/5 backdrop-blur-sm p-4 rounded-xl border border-white/10">
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById('fileInput').click()}
+                      className="flex-shrink-0 w-10 h-10 rounded-full bg-white/20 hover:bg-primary/80 text-primary hover:text-white flex items-center justify-center transition-colors duration-200 mr-2"
+                      tabIndex={-1}
+                      aria-label="Attach file"
+                    >
+                      <Plus className="w-6 h-6" />
+                    </button>
                     <textarea
                       value={inputMessage}
                       onChange={(e) => setInputMessage(e.target.value)}
                       onKeyDown={handleKeyPress}
-                      placeholder={`Type your message for ${AI_APPS[selectedApp]?.name || 'AI'}... (Press Enter to send, Ctrl+Enter for new line)`}
+                      placeholder={`${AI_APPS[selectedApp]?.name || 'AI'} is here to assist`}
                       className="flex-1 bg-white/10 px-4 py-3 rounded-xl border border-white/10 focus:outline-none focus:border-white/30 focus:ring-2 focus:ring-white/20 transition-all duration-200 resize-none min-h-[40px] max-h-[200px] shadow-sm text-base text-white placeholder-white/50"
                       rows={1}
                       style={{ height: 'auto' }}

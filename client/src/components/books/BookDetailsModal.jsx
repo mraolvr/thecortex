@@ -16,6 +16,17 @@ export default function BookDetailsModal({ book, onClose, onEdit, onDelete }) {
     setNotes(getNote(book.id));
   }, [book.id, getNote]);
 
+  // Close modal on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
   const fetchBookDetails = async () => {
     if (!book.title || !book.author) return;
     try {
@@ -61,12 +72,12 @@ export default function BookDetailsModal({ book, onClose, onEdit, onDelete }) {
   );
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-xl z-100 flex items-center justify-center p-2">
+    <div className="fixed inset-0 bg-black/90 backdrop-blur-xl z-50 flex items-center justify-center p-2">
       <motion.div
         initial={{ opacity: 1, scale: 1.1 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 1, scale: 0}}
-        className="bg-neutral-1200 rounded-xl shadow-xl border border-surface-light/20 max-w-5xl w-full max-h-[90vh] overflow-hidden"
+        className="bg-neutral-1200 rounded-xl shadow-xl border border-surface-light/20 max-w-5xl w-full max-h-[90vh] overflow-y-auto"
       >
         <div className="p-6">
           <div className="flex items-start justify-between mb-6">
@@ -191,7 +202,7 @@ export default function BookDetailsModal({ book, onClose, onEdit, onDelete }) {
               {/* Actionable Items Section */}
               <div className="space-y-2">
                 <h4 className="font-medium">Actionable Items</h4>
-                <div className="bg-background rounded-lg p-4">
+                <div className="bg-background-light rounded-lg p-4 max-h-48 overflow-y-auto">
                   <p className="text-neutral whitespace-pre-wrap">{book.actionable_items_text || 'No actionable items available.'}</p>
                 </div>
               </div>
@@ -214,7 +225,7 @@ export default function BookDetailsModal({ book, onClose, onEdit, onDelete }) {
                 </button>
                 <button
                   onClick={() => getActionableItems(book)}
-                  className="w-full flex items-center justify-center space-x-2 bg-primary hover:bg-primary-dark text-white py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full flex items-center justify-center space-x-2 bg-background-light hover:bg-primary-dark text-white py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
@@ -227,7 +238,7 @@ export default function BookDetailsModal({ book, onClose, onEdit, onDelete }) {
                 </button>
                 <button
                   onClick={fetchBookDetails}
-                  className="w-full flex items-center justify-center space-x-2 bg-primary hover:bg-primary-dark text-white py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full flex items-center justify-center space-x-2 bg-background-light hover:bg-primary-dark text-white py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? (
                     <Loader2 className="w-5 h-5 animate-spin" />

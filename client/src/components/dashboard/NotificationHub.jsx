@@ -90,7 +90,7 @@ const NotificationHub = () => {
       </button>
 
       {isExpanded && (
-        <div className="absolute right-0 mt-2 w-96 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+        <div className="absolute right-0 mt-2 w-96 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 max-h-96 overflow-y-auto">
           <div className="p-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">Notifications</h3>
@@ -181,27 +181,14 @@ const NotificationHub = () => {
               filteredNotifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={`p-4 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer ${
-                    !notification.read ? 'bg-blue-50 dark:bg-blue-900/20' : ''
-                  }`}
+                  className={`p-4 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer ${!notification.read ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}
                   onClick={() => handleNotificationClick(notification)}
                 >
-                  <div className="flex items-start space-x-3">
+                  <div className="flex items-center gap-2 w-full">
                     <span className="text-xl">{getNotificationIcon(notification.type)}</span>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-medium">{notification.title}</h4>
-                        <span className={`text-xs ${getPriorityColor(notification.priority)}`}>
-                          {notification.priority}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                        {notification.message}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-2">
-                        {new Date(notification.timestamp).toLocaleString()}
-                      </p>
-                    </div>
+                    <span className="flex-1 truncate font-medium">{notification.title}</span>
+                    <span className="truncate text-sm text-gray-600 dark:text-gray-300">{notification.message}</span>
+                    <span className="text-xs text-gray-500 ml-2">{new Date(notification.timestamp).toLocaleString()}</span>
                   </div>
                 </div>
               ))

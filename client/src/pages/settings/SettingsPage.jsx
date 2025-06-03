@@ -62,13 +62,11 @@ export default function SettingsPage() {
   const [securityInfo, setSecurityInfo] = useState({ lastLogin: '', sessions: [] });
 
   useEffect(() => {
-    if (user && profile) {
+    if (user) {
       setEditProfile({
-        full_name: profile.full_name || user.user_metadata?.full_name || '',
-        email: profile.email || user.email || '',
+        full_name: user.user_metadata?.full_name || '',
+        email: user.email || '',
       });
-      setNotificationPrefs(profile.preferences?.notifications || { email: true, inApp: true, product: false });
-      setAppearance(profile.preferences?.appearance || { theme: 'system', fontSize: 'normal' });
       // Connected accounts
       const connected = {};
       if (user.identities) {
@@ -77,11 +75,18 @@ export default function SettingsPage() {
         });
       }
       setConnectedAccounts(connected);
-      // Security info (mocked for now)
+      // Security info
       setSecurityInfo({
         lastLogin: user.last_sign_in_at || '',
         sessions: [{ device: 'This device', time: user.last_sign_in_at || '' }],
       });
+      
+      // If we have a profile, use its preferences
+      if (profile) {
+        setNotificationPrefs(profile.preferences?.notifications || { email: true, inApp: true, product: false });
+        setAppearance(profile.preferences?.appearance || { theme: 'system', fontSize: 'normal' });
+      }
+      
       setLoading(false);
     }
   }, [user, profile]);
@@ -147,9 +152,33 @@ export default function SettingsPage() {
     }
   };
 
+  // Add error handling for when user is not available
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-neutral-950 p-8">
+        <div className="max-w-4xl mx-auto">
+          <GlowingEffect className="bg-surface p-6 rounded-xl">
+            <div className="text-center">
+              <h2 className="text-xl font-semibold text-red-500 mb-2">Authentication Required</h2>
+              <p className="text-neutral-400 mb-6">Please sign in to access settings.</p>
+              <Button 
+                variant="primary" 
+                onClick={() => window.location.href = '/login'}
+                className="flex items-center gap-2 mx-auto"
+              >
+                <User className="w-4 h-4" />
+                Sign In
+              </Button>
+            </div>
+          </GlowingEffect>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-background p-8">
+      <div className="min-h-screen bg-neutral-950 p-8">
         <div className="max-w-4xl mx-auto">
           <GlowingEffect className="bg-surface p-6 rounded-xl">
             <div className="animate-pulse space-y-4">
@@ -237,14 +266,14 @@ export default function SettingsPage() {
                       <div className="flex flex-col gap-2">
                         <input
                           type="text"
-                          value={editProfile.full_name}
+                          value={editProfile.full_name ?? ''}
                           onChange={e => setEditProfile(p => ({ ...p, full_name: e.target.value }))}
                           className="w-full bg-background px-4 py-2 rounded-lg border border-surface-light focus:outline-none focus:border-primary"
                           placeholder="Full Name"
                         />
                         <input
                           type="email"
-                          value={editProfile.email}
+                          value={editProfile.email ?? ''}
                           onChange={e => setEditProfile(p => ({ ...p, email: e.target.value }))}
                           className="w-full bg-background px-4 py-2 rounded-lg border border-surface-light focus:outline-none focus:border-primary"
                           placeholder="Email"
@@ -279,7 +308,7 @@ export default function SettingsPage() {
                     <div className="relative">
                       <input
                         type={showPassword ? 'text' : 'password'}
-                        value={editPassword.current}
+                        value={editPassword.current ?? ''}
                         onChange={e => setEditPassword(p => ({ ...p, current: e.target.value }))}
                         className="w-full bg-background px-4 py-2 rounded-lg border border-surface-light focus:outline-none focus:border-primary"
                         placeholder="Current Password"
@@ -290,14 +319,14 @@ export default function SettingsPage() {
                     </div>
                     <input
                       type={showPassword ? 'text' : 'password'}
-                      value={editPassword.new}
+                      value={editPassword.new ?? ''}
                       onChange={e => setEditPassword(p => ({ ...p, new: e.target.value }))}
                       className="w-full bg-background px-4 py-2 rounded-lg border border-surface-light focus:outline-none focus:border-primary"
                       placeholder="New Password"
                     />
                     <input
                       type={showPassword ? 'text' : 'password'}
-                      value={editPassword.confirm}
+                      value={editPassword.confirm ?? ''}
                       onChange={e => setEditPassword(p => ({ ...p, confirm: e.target.value }))}
                       className="w-full bg-background px-4 py-2 rounded-lg border border-surface-light focus:outline-none focus:border-primary"
                       placeholder="Confirm New Password"

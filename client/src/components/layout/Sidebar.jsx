@@ -2,7 +2,7 @@ import React, { useState, createContext, useContext, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, User } from "lucide-react";
 import { cn } from "../../utils/cn";
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Home,
   Brain,
@@ -88,6 +88,7 @@ export const SidebarLink = ({ to, icon: Icon, children, isCollapsed }) => {
 export const SidebarBody = ({ children }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, profile } = useUser();
 
   const profileImage = user?.user_metadata?.avatar_url || profile?.avatar_url;
@@ -107,6 +108,16 @@ export const SidebarBody = ({ children }) => {
       document.removeEventListener('touchstart', handleClickOutside);
     };
   }, [isCollapsed]);
+
+  const SignInButton = () => (
+    <button
+      onClick={() => navigate('/login')}
+      className="flex items-center justify-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg transition-colors duration-200"
+    >
+      <Lock className="w-4 h-4" />
+      <span>Sign In</span>
+    </button>
+  );
 
   return (
     <>
@@ -141,22 +152,28 @@ export const SidebarBody = ({ children }) => {
                   <X className="w-6 h-6 text-white" />
                 </button>
               </div>
-              <div className="flex justify-center mb-6">
-                <div className="relative">
-                  {profileImage ? (
-                    <img
-                      src={profileImage}
-                      alt="Profile"
-                      className="w-20 h-20 rounded-full border-2 border-white/20 shadow-lg"
-                    />
-                  ) : (
-                    <div className="w-20 h-20 rounded-full border-2 border-white/20 shadow-lg bg-white/10 flex items-center justify-center">
-                      <User className="w-10 h-10 text-white/70" />
-                    </div>
-                  )}
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-violet-500/20 via-purple-500/20 to-fuchsia-500/20" />
+              {user ? (
+                <div className="flex justify-center mb-6">
+                  <div className="relative">
+                    {profileImage ? (
+                      <img
+                        src={profileImage}
+                        alt="Profile"
+                        className="w-20 h-20 rounded-full border-2 border-white/20 shadow-lg"
+                      />
+                    ) : (
+                      <div className="w-20 h-20 rounded-full border-2 border-white/20 shadow-lg bg-white/10 flex items-center justify-center">
+                        <User className="w-10 h-10 text-white/70" />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-violet-500/20 via-purple-500/20 to-fuchsia-500/20" />
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="flex justify-center mb-6">
+                  <SignInButton />
+                </div>
+              )}
               <nav className="space-y-2 overflow-y-auto max-h-[calc(100vh-200px)] custom-scrollbar">
                 {children}
               </nav>
@@ -180,30 +197,39 @@ export const SidebarBody = ({ children }) => {
             {isCollapsed ? <Menu className="w-2 h-2 text-white" /> : <Menu className="w-4 h-4 text-white" />}
           </button>
         </div>
-        <div className="flex justify-center py-6">
-          <div className="relative group flex flex-col items-center">
-            {profileImage ? (
-              <img
-                src={profileImage}
-                alt="Profile"
-                className={`rounded-full border-2 border-neutral-800 shadow-lg transition-all duration-300 ${isCollapsed ? 'w-10 h-10' : 'w-24 h-24'}`}
-              />
-            ) : (
-              <div className={`rounded-full border-2 border-neutral-800 shadow-lg bg-neutral-800 flex items-center justify-center transition-all duration-300 ${isCollapsed ? 'w-10 h-10' : 'w-24 h-24'}`}>
-                <User className={`${isCollapsed ? 'w-5 h-5' : 'w-12 h-12'} text-neutral-400`} />
-              </div>
-            )}
-            {!isCollapsed && user?.user_metadata?.full_name && (
-              <div className="mt-2 text-center text-sm text-white font-medium truncate max-w-[120px]">
-                {user.user_metadata.full_name}
-              </div>
-            )}
+        {user ? (
+          <div className="flex justify-center py-6">
+            <div className="relative group flex flex-col items-center">
+              {profileImage ? (
+                <img
+                  src={profileImage}
+                  alt="Profile"
+                  className={`rounded-full border-2 border-neutral-800 shadow-lg transition-all duration-300 ${isCollapsed ? 'w-10 h-10' : 'w-24 h-24'}`}
+                />
+              ) : (
+                <div className={`rounded-full border-2 border-neutral-800 shadow-lg bg-neutral-800 flex items-center justify-center transition-all duration-300 ${isCollapsed ? 'w-10 h-10' : 'w-24 h-24'}`}>
+                  <User className={`${isCollapsed ? 'w-5 h-5' : 'w-12 h-12'} text-neutral-400`} />
+                </div>
+              )}
+              {!isCollapsed && user?.user_metadata?.full_name && (
+                <div className="mt-2 text-center text-sm text-white font-medium truncate max-w-[120px]">
+                  {user.user_metadata.full_name}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="flex justify-center py-6">
+            <SignInButton />
+          </div>
+        )}
         <nav className={`flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar transition-all duration-300 ${isCollapsed ? 'px-1' : 'px-4'}`}> 
-          {React.Children.map(children, child =>
-            React.cloneElement(child, { isCollapsed })
-          )}
+          {React.Children.map(children, child => {
+            if (React.isValidElement(child) && typeof child.type !== 'string') {
+              return React.cloneElement(child, { isCollapsed });
+            }
+            return child;
+          })}
         </nav>
       </div>
 

@@ -90,7 +90,7 @@ const TodayAgenda = () => {
   }
 
   return (
-    <div className="p-8 rounded-2xl shadow-xl bg-gradient-to-br from-white/80 via-blue-50/80 to-emerald-100/80 dark:from-gray-900/80 dark:via-gray-800/80 dark:to-emerald-900/80 border-l-8 border-emerald-400 dark:border-emerald-500 backdrop-blur-md">
+    <div className="p-8 rounded-2xl shadow-xl bg-gradient-to-br from-white/80 via-blue-50/80 to-emerald-100/80 dark:from-gray-900/80 dark:via-gray-800/80 dark:to-emerald-900/80 border-l-8 border-emerald-400 dark:border-emerald-500 backdrop-blur-md max-h-96 overflow-y-auto">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-extrabold text-gray-800 dark:text-white flex items-center gap-2 drop-shadow">
           <Calendar className="w-7 h-7 text-emerald-500" /> Today's Agenda
@@ -134,37 +134,17 @@ const TodayAgenda = () => {
             <div
               key={event.id}
               onClick={() => handleEventClick(event)}
-              className="p-4 rounded-xl border-l-4 shadow bg-white/80 dark:bg-gray-900/80 flex items-start gap-4 hover:bg-blue-50 dark:hover:bg-blue-900 cursor-pointer transition-colors"
+              className="p-4 rounded-xl border-l-4 shadow bg-white/80 dark:bg-gray-900/80 flex items-center gap-2 hover:bg-blue-50 dark:hover:bg-blue-900 cursor-pointer transition-colors"
               style={{ borderColor: getEventColor(event.eventType) }}
             >
-              <div className="mt-1">
-                <span className="inline-block w-3 h-3 rounded-full" style={{ backgroundColor: getEventColor(event.eventType) }}></span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-lg text-gray-900 dark:text-white">{event.title}</span>
-                  <span className="ml-2 px-2 py-0.5 rounded text-xs font-semibold" style={{ backgroundColor: getEventColor(event.eventType), color: '#fff' }}>{event.eventType || 'other'}</span>
-                </div>
-                <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  <Clock className="h-4 w-4 mr-1" />
-                  <span>{format(new Date(event.start), 'h:mm a')}</span>
-                  <span className="mx-2">-</span>
-                  <span>{format(new Date(event.end), 'h:mm a')}</span>
-                </div>
-                {event.location && (
-                  <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    <span>{event.location}</span>
-                  </div>
-                )}
-              </div>
-              <button
-                onClick={(e) => { e.stopPropagation(); handleEventClick(event); }}
-                className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 ml-2"
-                aria-label="View details"
-              >
-                <X className="h-4 w-4 text-gray-600 dark:text-gray-300" />
-              </button>
+              <span className="inline-block w-3 h-3 rounded-full" style={{ backgroundColor: getEventColor(event.eventType) }}></span>
+              <span className="flex-1 truncate font-semibold text-lg text-gray-900 dark:text-white">{event.title}</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                {format(new Date(event.start), 'h:mm a')} - {format(new Date(event.end), 'h:mm a')}
+              </span>
+              {event.location && (
+                <span className="text-sm text-gray-500 dark:text-gray-400 truncate">{event.location}</span>
+              )}
             </div>
           ))}
         </div>

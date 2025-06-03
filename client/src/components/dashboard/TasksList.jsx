@@ -201,9 +201,9 @@ export default function TasksList({ tasks, updateTask }) {
               initial="initial"
               animate="animate"
               exit="exit"
-              className="flex items-center justify-between p-3 bg-gradient-to-br from-blue-600/80  dark:to-blue-900/80 border-l-4 border-blue-400 dark:border-blue-500 rounded-lg shadow group"
+              className="p-3 bg-gradient-to-br from-blue-600/80 dark:to-blue-900/80 border-l-4 border-blue-400 dark:border-blue-500 rounded-lg shadow group"
             >
-              <div className="flex items-center space-x-3 flex-1">
+              <div className="flex items-center gap-2 w-full">
                 <button
                   onClick={() => toggleTask(task.id)}
                   className="focus:outline-none focus:ring-2 focus:ring-primary rounded"
@@ -214,11 +214,9 @@ export default function TasksList({ tasks, updateTask }) {
                     <Square className="w-5 h-5 text-neutral" />
                   )}
                 </button>
-                <span className={task.status === 'done' ? 'line-through text-neutral' : ''}>
+                <span className={task.status === 'done' ? 'flex-1 truncate line-through text-neutral' : 'flex-1 truncate'}>
                   {task.title}
                 </span>
-              </div>
-              <div className="flex items-center space-x-2">
                 <button
                   onClick={() => handleStartEdit(task)}
                   className="p-1 text-neutral hover:text-primary transition-colors"

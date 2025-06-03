@@ -47,18 +47,24 @@ const useTaskStore = create(
             set({ isLoading: false, error: 'Not signed in' });
             return undefined;
           }
+          console.log('User authenticated:', user.id);
+          const taskData = {
+            ...task,
+            user_id: user.id,
+            source: 'supabase',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          };
+          console.log('Sending task data to Supabase:', taskData);
           const { data, error } = await supabase
             .from('tasks')
-            .insert([{
-              ...task,
-              user_id: user.id,
-              source: 'supabase',
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
-            }])
+            .insert([taskData])
             .select()
             .single();
-          if (error) throw error;
+          if (error) {
+            console.error('Supabase error:', error);
+            throw error;
+          }
           set((state) => ({
             allTasks: [...state.allTasks, { ...data, source: 'supabase' }],
             isLoading: false,
@@ -66,6 +72,7 @@ const useTaskStore = create(
           }));
           return data;
         } catch (error) {
+          console.error('Error in addTask:', error);
           set({ isLoading: false, error: error.message });
           return undefined;
         }

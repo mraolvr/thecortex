@@ -230,9 +230,9 @@ export default function WorkHub() {
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
-    due_date: '',
+    due_date: new Date().toISOString().split('T')[0],
     priority: 'medium',
-    project_id: '',
+    project_id: null,
   });
 
   const [taskSearch, setTaskSearch] = useState('');
@@ -245,7 +245,14 @@ export default function WorkHub() {
   };
 
   const [editingTaskId, setEditingTaskId] = useState(null);
-  const [editTaskForm, setEditTaskForm] = useState({ title: '', description: '', due_date: '', priority: 'medium', project_id: '' });
+  const [editTaskForm, setEditTaskForm] = useState({ 
+    title: '', 
+    description: '', 
+    due_date: '', 
+    priority: 'medium', 
+    project_id: null,
+    status: 'todo'
+  });
 
   const [completingTaskId, setCompletingTaskId] = useState(null);
 
@@ -618,7 +625,8 @@ export default function WorkHub() {
       description: task.description || '',
       due_date: task.due_date || '',
       priority: task.priority || 'medium',
-      project_id: task.project_id || '',
+      project_id: task.project_id || null,
+      status: task.status || 'todo'
     });
   };
 
@@ -626,8 +634,20 @@ export default function WorkHub() {
     if (!editTaskForm.title.trim()) return;
     await updateTask(taskId, { ...editTaskForm });
     setEditingTaskId(null);
-    setEditTaskForm({ title: '', description: '', due_date: '', priority: 'medium', project_id: '' });
+    setEditTaskForm({ 
+      title: '', 
+      description: '', 
+      due_date: '', 
+      priority: 'medium', 
+      project_id: null,
+      status: 'todo'
+    });
     showToast('Task updated!', 'success');
+  };
+
+  const handleStatusChange = async (taskId, newStatus) => {
+    await updateTask(taskId, { status: newStatus });
+    showToast('Task status updated!', 'success');
   };
 
   const handleToggleTask = async (task, e) => {
@@ -702,12 +722,16 @@ export default function WorkHub() {
                   <form className="mb-6 space-y-4" onSubmit={async (e) => {
                     e.preventDefault();
                     if (!newTask.title.trim()) return;
+                    console.log('Attempting to add task with data:', {
+                      ...newTask,
+                      due_date: newTask.due_date || new Date().toISOString().split('T')[0],
+                    });
                     await addTask({
                       ...newTask,
                       due_date: newTask.due_date || new Date().toISOString().split('T')[0],
                     });
                     setShowAddTaskModal(false);
-                    setNewTask({ title: '', description: '', due_date: '', priority: 'medium', project_id: '' });
+                    setNewTask({ title: '', description: '', due_date: '', priority: 'medium', project_id: null });
                     showToast('Task added!', 'success');
                   }}>
                     <input
@@ -743,8 +767,8 @@ export default function WorkHub() {
                       />
                     </div>
                     <select
-                      value={newTask.project_id}
-                      onChange={e => setNewTask({ ...newTask, project_id: e.target.value })}
+                      value={newTask.project_id || ''}
+                      onChange={e => setNewTask({ ...newTask, project_id: e.target.value || null })}
                       className="w-full px-3 py-2 bg-gray-900 rounded-lg text-neutral-200"
                     >
                       <option value="">No Project</option>
@@ -766,22 +790,104 @@ export default function WorkHub() {
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-semibold text-lg text-white">{task.title}</h3>
-                          </div>
-                          {task.description && (
-                            <p className="text-neutral-300 text-sm mb-1">{task.description}</p>
+                          {editingTaskId === task.id ? (
+                            <div className="space-y-3">
+                              <input
+                                type="text"
+                                value={editTaskForm.title}
+                                onChange={(e) => setEditTaskForm({ ...editTaskForm, title: e.target.value })}
+                                className="w-full bg-neutral-900 px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-primary text-white"
+                                autoFocus
+                              />
+                              <textarea
+                                value={editTaskForm.description}
+                                onChange={(e) => setEditTaskForm({ ...editTaskForm, description: e.target.value })}
+                                className="w-full px-2 py-1 bg-neutral-900 rounded focus:outline-none focus:ring-2 focus:ring-primary resize-none h-16 text-white"
+                                placeholder="Description (optional)"
+                              />
+                              <div className="flex gap-2">
+                                <select
+                                  value={editTaskForm.priority}
+                                  onChange={(e) => setEditTaskForm({ ...editTaskForm, priority: e.target.value })}
+                                  className="px-2 py-1 bg-neutral-900 rounded text-sm text-white"
+                                >
+                                  <option value="low">Low</option>
+                                  <option value="medium">Medium</option>
+                                  <option value="high">High</option>
+                                </select>
+                                <input
+                                  type="date"
+                                  value={editTaskForm.due_date}
+                                  onChange={(e) => setEditTaskForm({ ...editTaskForm, due_date: e.target.value })}
+                                  className="px-2 py-1 bg-neutral-900 rounded text-sm text-white"
+                                />
+                                <select
+                                  value={editTaskForm.status}
+                                  onChange={(e) => setEditTaskForm({ ...editTaskForm, status: e.target.value })}
+                                  className="px-2 py-1 bg-neutral-900 rounded text-sm text-white"
+                                >
+                                  <option value="todo">To Do</option>
+                                  <option value="in_progress">In Progress</option>
+                                  <option value="done">Done</option>
+                                </select>
+                              </div>
+                              <select
+                                value={editTaskForm.project_id || ''}
+                                onChange={(e) => setEditTaskForm({ ...editTaskForm, project_id: e.target.value || null })}
+                                className="w-full px-2 py-1 bg-neutral-900 rounded text-sm text-white"
+                              >
+                                <option value="">No Project</option>
+                                {projects.map(project => (
+                                  <option key={project.id} value={project.id}>{project.name}</option>
+                                ))}
+                              </select>
+                              <div className="flex gap-2">
+                                <Button
+                                  onClick={() => handleSaveEditTask(task.id)}
+                                  className="p-1 text-primary hover:text-primary-dark transition-colors"
+                                >
+                                  <Check className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  onClick={() => setEditingTaskId(null)}
+                                  className="px-3 py-1 bg-neutral-700 text-neutral-200 rounded"
+                                >
+                                  Cancel
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <>
+                              <div className="flex items-center gap-2 mb-1">
+                                <h3 className="font-semibold text-lg text-white">{task.title}</h3>
+                              </div>
+                              {task.description && (
+                                <p className="text-neutral-300 text-sm mb-1">{task.description}</p>
+                              )}
+                              <div className="flex gap-2 mt-1 text-xs">
+                                <span className="px-2 py-0.5 rounded bg-neutral-700 text-primary">{task.priority}</span>
+                                {task.due_date && <span className="px-2 py-0.5 rounded bg-neutral-700 text-neutral-300">Due: {new Date(task.due_date).toLocaleDateString()}</span>}
+                                {task.project_id && <span className="px-2 py-0.5 rounded bg-neutral-700 text-neutral-300">{projects.find(p => p.id === task.project_id)?.name}</span>}
+                                <select
+                                  value={task.status || 'todo'}
+                                  onChange={(e) => handleStatusChange(task.id, e.target.value)}
+                                  className="px-2 py-0.5 rounded bg-neutral-700 text-neutral-300"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <option value="todo">To Do</option>
+                                  <option value="in_progress">In Progress</option>
+                                  <option value="done">Done</option>
+                                </select>
+                              </div>
+                            </>
                           )}
-                          <div className="flex gap-2 mt-1 text-xs">
-                            <span className="px-2 py-0.5 rounded bg-neutral-700 text-primary">{task.priority}</span>
-                            {task.due_date && <span className="px-2 py-0.5 rounded bg-neutral-700 text-neutral-300">Due: {new Date(task.due_date).toLocaleDateString()}</span>}
-                            {task.project_id && <span className="px-2 py-0.5 rounded bg-neutral-700 text-neutral-300">{projects.find(p => p.id === task.project_id)?.name}</span>}
+                        </div>
+                        {editingTaskId !== task.id && (
+                          <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button onClick={() => handleStartEditTask(task)} className="p-1 text-yellow-400 hover:text-yellow-600"><Edit2 className="w-4 h-4" /></Button>
+                            <Button onClick={() => deleteTask(task.id)} className="p-1 text-error hover:text-error-dark transition-colors"><Trash2 className="w-4 h-4" /></Button>
                           </div>
-                        </div>
-                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button onClick={() => setEditingTaskId(task.id)} className="p-1 text-yellow-400 hover:text-yellow-600"><Edit2 className="w-4 h-4" /></Button>
-                          <Button onClick={() => deleteTask(task.id)} className="p-1 text-error hover:text-error-dark transition-colors"><Trash2 className="w-4 h-4" /></Button>
-                        </div>
+                        )}
                       </div>
                     </div>
                   ))}

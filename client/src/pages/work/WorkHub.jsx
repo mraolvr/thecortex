@@ -661,6 +661,52 @@ export default function WorkHub() {
     setCompletingTaskId(null);
   };
 
+  const handleSaveTask = async (e) => {
+    e.preventDefault();
+    try {
+      console.log('Attempting to add task with data:', {
+        ...newTask,
+        due_date: newTask.due_date || new Date().toISOString().split('T')[0],
+      });
+      
+      const result = await addTask({
+        ...newTask,
+        due_date: newTask.due_date || new Date().toISOString().split('T')[0],
+      });
+      
+      if (!result) {
+        console.error('Task creation failed - no result returned');
+        toast.error('Failed to create task. Please try again.');
+        return;
+      }
+      
+      console.log('Task created successfully:', result);
+      toast.success('Task added successfully!');
+      
+      // Reset form
+      setNewTask({
+        title: '',
+        description: '',
+        due_date: new Date().toISOString().split('T')[0],
+        priority: 'medium',
+        project_id: null,
+        status: 'todo'
+      });
+      
+      // Refresh tasks
+      await fetchSupabaseTasks();
+    } catch (error) {
+      console.error('Error creating task:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
+        stack: error.stack
+      });
+      toast.error(`Failed to create task: ${error.message}`);
+    }
+  };
+
   return (
     <BackgroundGrid>
       <div className="shadow-2xl rounded-xl">
@@ -719,21 +765,7 @@ export default function WorkHub() {
                   </div>
                 )}
                 {showAddTaskModal && (
-                  <form className="mb-6 space-y-4" onSubmit={async (e) => {
-                    e.preventDefault();
-                    if (!newTask.title.trim()) return;
-                    console.log('Attempting to add task with data:', {
-                      ...newTask,
-                      due_date: newTask.due_date || new Date().toISOString().split('T')[0],
-                    });
-                    await addTask({
-                      ...newTask,
-                      due_date: newTask.due_date || new Date().toISOString().split('T')[0],
-                    });
-                    setShowAddTaskModal(false);
-                    setNewTask({ title: '', description: '', due_date: '', priority: 'medium', project_id: null });
-                    showToast('Task added!', 'success');
-                  }}>
+                  <form className="mb-6 space-y-4" onSubmit={handleSaveTask}>
                     <input
                       type="text"
                       value={newTask.title}

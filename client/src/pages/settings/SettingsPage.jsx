@@ -91,6 +91,22 @@ export default function SettingsPage() {
     }
   }, [user, profile]);
 
+  useEffect(() => {
+    const handleOAuthCallback = async () => {
+      const { searchParams } = new URL(window.location.href);
+      const code = searchParams.get('code');
+      if (code) {
+        const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+        if (error) {
+          console.error('Error exchanging code for session:', error);
+        } else {
+          console.log('Successfully logged in:', data);
+        }
+      }
+    };
+    handleOAuthCallback();
+  }, []);
+
   const handleAvatarUpload = async (event) => {
     try {
       setUploading(true);

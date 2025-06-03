@@ -437,6 +437,17 @@ export default function SettingsPage() {
                 <Button variant="secondary">Sign Out of All Devices</Button>
               </GlowingEffect>
             )}
+
+            <div className="mb-8">
+              <h2 className="text-xl font-semibold mb-4">Supabase Authentication</h2>
+              <p className="text-gray-600 mb-4">Sign in to Supabase using your Google account.</p>
+              <button
+                onClick={() => supabase.auth.signInWithOAuth({ provider: 'google' })}
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              >
+                Sign in with Google
+              </button>
+            </div>
           </div>
         </div>
       </div>

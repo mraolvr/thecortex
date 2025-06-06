@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Logger from '../utils/logger';
+import { isDevelopment } from '../config/environment';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -17,8 +19,7 @@ class ErrorBoundary extends React.Component {
       errorInfo
     });
     
-    // Log error to your error tracking service here
-    console.error('Error caught by boundary:', error, errorInfo);
+    Logger.error('Error caught by boundary:', error, errorInfo);
   }
 
   render() {
@@ -36,7 +37,7 @@ class ErrorBoundary extends React.Component {
             >
               Refresh Page
             </button>
-            {process.env.NODE_ENV === 'development' && this.state.error && (
+            {isDevelopment && this.state.error && (
               <div className="mt-4 p-4 bg-gray-100 rounded">
                 <p className="text-sm font-mono text-red-500">{this.state.error.toString()}</p>
                 {this.state.errorInfo && (

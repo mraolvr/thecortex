@@ -11,6 +11,7 @@ import { differenceInDays } from 'date-fns';
 import Card from '../../components/ui/Card';
 import BackgroundGrid from '../../components/ui/BackgroundGrid';
 import Button from '../../components/ui/Button';
+import { useUser } from '../../contexts/UserContext';
 
 const priorityColors = {
   high: 'text-red-500',
@@ -133,6 +134,7 @@ function ProjectDetailsModal({ project, onClose, onEdit, onDelete, onAttachmentC
 }
 
 export default function WorkHub() {
+  const { user } = useUser();
   const {
     projects,
     isLoading: projectsLoading,
@@ -233,6 +235,7 @@ export default function WorkHub() {
     due_date: new Date().toISOString().split('T')[0],
     priority: 'medium',
     project_id: null,
+    status: 'todo'
   });
 
   const [taskSearch, setTaskSearch] = useState('');
@@ -663,25 +666,29 @@ export default function WorkHub() {
 
   const handleSaveTask = async (e) => {
     e.preventDefault();
+    console.log('Starting handleSaveTask with form data:', newTask);
+    
     try {
-      console.log('Attempting to add task with data:', {
+      const taskData = {
         ...newTask,
         due_date: newTask.due_date || new Date().toISOString().split('T')[0],
-      });
+        status: newTask.status || 'todo',
+        priority: newTask.priority || 'medium'
+      };
       
-      const result = await addTask({
-        ...newTask,
-        due_date: newTask.due_date || new Date().toISOString().split('T')[0],
-      });
+      console.log('Prepared task data for submission:', taskData);
+      
+      const result = await addTask(taskData);
+      console.log('addTask result:', result);
       
       if (!result) {
         console.error('Task creation failed - no result returned');
-        toast.error('Failed to create task. Please try again.');
+        showToast('Failed to create task. Please try again.', 'error');
         return;
       }
       
       console.log('Task created successfully:', result);
-      toast.success('Task added successfully!');
+      showToast('Task added successfully!', 'success');
       
       // Reset form
       setNewTask({
@@ -703,7 +710,7 @@ export default function WorkHub() {
         code: error.code,
         stack: error.stack
       });
-      toast.error(`Failed to create task: ${error.message}`);
+      showToast(`Failed to create task: ${error.message}`, 'error');
     }
   };
 
@@ -711,13 +718,22 @@ export default function WorkHub() {
     <BackgroundGrid>
       <div className="shadow-2xl rounded-xl">
         <div className="max-w-[1600px] mx-auto">
-          <SectionHeader 
-            title="Work Hub"
-            subtitle="Manage your tasks, goals, and projects in one place"  
-            center
-            icon={Briefcase}
-            divider 
-          />
+          <div className="flex justify-between items-center mb-6">
+            <SectionHeader 
+              title="Work Hub"
+              subtitle="Manage your tasks, goals, and projects in one place"  
+              center
+              icon={Briefcase}
+              divider 
+            />
+            {user && (
+              <div className="flex items-center gap-4">
+                <span className="text-neutral-400">
+                  {user.email}
+                </span>
+              </div>
+            )}
+          </div>
           {/* Summary/Analytics Bar */}
           <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-10">
             <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4 flex flex-col items-center shadow-2xl">

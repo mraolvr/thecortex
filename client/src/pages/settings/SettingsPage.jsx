@@ -9,6 +9,7 @@ import {
 import { useUser } from '../../contexts/UserContext';
 import SectionHeader from '../../components/ui/SectionHeader';
 import Button from '../../components/ui/Button';
+import { useNavigate } from 'react-router-dom';
 
 const sidebarTabs = [
   { id: 'profile', name: 'Profile', icon: User },
@@ -45,7 +46,7 @@ const GoogleIcon = () => (
 );
 
 export default function SettingsPage() {
-  const { user, profile, updateProfile } = useUser();
+  const { user, profile, updateProfile, signOut } = useUser();
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('profile');
   const [uploading, setUploading] = useState(false);
@@ -60,6 +61,8 @@ export default function SettingsPage() {
   const [connectedAccounts, setConnectedAccounts] = useState({});
   const [deleting, setDeleting] = useState(false);
   const [securityInfo, setSecurityInfo] = useState({ lastLogin: '', sessions: [] });
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
@@ -160,11 +163,15 @@ export default function SettingsPage() {
 
   const handleSignOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      window.location.href = '/login';
+      setIsSigningOut(true);
+      setError(null);
+      await signOut();
+      navigate('/login');
     } catch (error) {
-      setError('Error signing out.');
+      console.error('Error signing out:', error);
+      setError('Failed to sign out. Please try again.');
+    } finally {
+      setIsSigningOut(false);
     }
   };
 

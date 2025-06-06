@@ -17,7 +17,7 @@ export default defineConfig({
     },
   },
   build: {
-    sourcemap: isDevelopment,
+    sourcemap: true,
     minify: 'terser',
     rollupOptions: {
       output: {
@@ -30,13 +30,13 @@ export default defineConfig({
     },
     terserOptions: {
       compress: {
-        drop_console: !isDevelopment,
-        drop_debugger: !isDevelopment,
+        drop_console: false,
+        drop_debugger: false,
       },
     },
   },
   clearScreen: false,
-  logLevel: isDevelopment ? 'info' : 'error',
+  logLevel: 'info',
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.tsx']
   }

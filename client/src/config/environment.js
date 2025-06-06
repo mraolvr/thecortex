@@ -1,16 +1,5 @@
 export const isDevelopment = import.meta.env.MODE === 'development';
 
-// Required environment variables
-const requiredEnvVars = [
-  'VITE_API_URL'
-];
-
-// Validate environment variables
-const missingVars = requiredEnvVars.filter(varName => !import.meta.env[varName]);
-if (missingVars.length > 0) {
-  throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
-}
-
 // API endpoints
 export const API_ENDPOINTS = {
   MENTOR: import.meta.env.VITE_MENTOR_ENDPOINT || '/api/mentor',

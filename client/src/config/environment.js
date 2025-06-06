@@ -21,7 +21,7 @@ export const API_ENDPOINTS = {
 
 // API configuration
 export const API_CONFIG = {
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: import.meta.env.VITE_API_URL || (isDevelopment ? 'http://localhost:3000' : window.location.origin),
   timeout: 30000,
   retryAttempts: 3
 }; 

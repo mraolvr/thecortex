@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { listItem, staggerContainer, fadeIn } from '../../utils/animations';
 import { format } from 'date-fns';
+import useTaskStore from '../../stores/taskStore';
 
 const priorityColors = {
   high: 'text-red-500',
@@ -14,6 +15,7 @@ const priorityColors = {
 };
 
 export default function TasksList({ tasks, updateTask }) {
+  const { addTask, deleteTask } = useTaskStore();
   const [newTask, setNewTask] = useState('');
   const [editingTask, setEditingTask] = useState(null);
   const [editForm, setEditForm] = useState({});
@@ -30,40 +32,76 @@ export default function TasksList({ tasks, updateTask }) {
   const filteredTasks = selectedCategory === 'All' 
     ? tasks
     : selectedCategory === 'Overdue'
-    ? tasks.filter(task => new Date(task.dueDate) < new Date())
+    ? tasks.filter(task => new Date(task.due_date) < new Date())
     : selectedCategory === 'Due Today'
-    ? tasks.filter(task => new Date(task.dueDate).toDateString() === new Date().toDateString())
+    ? tasks.filter(task => new Date(task.due_date).toDateString() === new Date().toDateString())
     : tasks.filter(task => task.category === selectedCategory);
 
-  const handleAddTask = (e) => {
+  const handleAddTask = async (e) => {
     e.preventDefault();
     if (!newTaskForm.title.trim()) return;
-    // Add task logic here
-    setNewTaskForm({
-      title: '',
-      description: '',
-      category: 'Other',
-      priority: 'medium',
-      dueDate: ''
-    });
-    setShowAddModal(false);
+    
+    try {
+      await addTask({
+        title: newTaskForm.title,
+        description: newTaskForm.description,
+        category: newTaskForm.category,
+        priority: newTaskForm.priority,
+        due_date: newTaskForm.dueDate || null,
+        status: 'todo'
+      });
+      
+      setNewTaskForm({
+        title: '',
+        description: '',
+        category: 'Other',
+        priority: 'medium',
+        dueDate: ''
+      });
+      setShowAddModal(false);
+    } catch (error) {
+      console.error('Error adding task:', error);
+    }
   };
 
   const handleStartEdit = (task) => {
     setEditingTask(task.id);
     setEditForm({
       title: task.title,
-      category: task.category,
-      priority: task.priority,
-      dueDate: task.dueDate || ''
+      description: task.description || '',
+      category: task.category || 'Other',
+      priority: task.priority || 'medium',
+      dueDate: task.due_date ? task.due_date.split('T')[0] : ''
     });
   };
 
-  const handleSaveEdit = (taskId) => {
+  const handleSaveEdit = async (taskId) => {
     if (!editForm.title.trim()) return;
-    // Edit task logic here
-    setEditingTask(null);
-    setEditForm({});
+    
+    try {
+      await updateTask(taskId, {
+        title: editForm.title,
+        description: editForm.description,
+        category: editForm.category,
+        priority: editForm.priority,
+        due_date: editForm.dueDate || null
+      });
+      
+      setEditingTask(null);
+      setEditForm({});
+    } catch (error) {
+      console.error('Error updating task:', error);
+    }
+  };
+
+  const handleDeleteTask = async (taskId) => {
+    if (!window.confirm('Are you sure you want to delete this task?')) return;
+    
+    try {
+      await deleteTask(taskId);
+    } catch (error) {
+      console.error('Error deleting task:', error);
+    }
   };
 
   // Toggle task completion and update backend
@@ -203,33 +241,110 @@ export default function TasksList({ tasks, updateTask }) {
               exit="exit"
               className="p-3 bg-gradient-to-br from-blue-600/80 dark:to-blue-900/80 border-l-4 border-blue-400 dark:border-blue-500 rounded-lg shadow group"
             >
-              <div className="flex items-center gap-2 w-full">
-                <button
-                  onClick={() => toggleTask(task.id)}
-                  className="focus:outline-none focus:ring-2 focus:ring-primary rounded"
-                >
-                  {task.status === 'done' ? (
-                    <CheckSquare className="w-5 h-5 text-primary" />
-                  ) : (
-                    <Square className="w-5 h-5 text-neutral" />
-                  )}
-                </button>
-                <span className={task.status === 'done' ? 'flex-1 truncate line-through text-neutral' : 'flex-1 truncate'}>
-                  {task.title}
-                </span>
-                <button
-                  onClick={() => handleStartEdit(task)}
-                  className="p-1 text-neutral hover:text-primary transition-colors"
-                >
-                  <Edit2 className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => deleteTask(task.id)}
-                  className="p-1 text-neutral hover:text-error transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
+              {editingTask === task.id ? (
+                // Edit mode
+                <div className="space-y-3">
+                  <input
+                    type="text"
+                    value={editForm.title}
+                    onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                    className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 text-black dark:text-white border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    autoFocus
+                  />
+                  <textarea
+                    value={editForm.description}
+                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                    placeholder="Description (optional)"
+                    className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 text-black dark:text-white border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none h-20"
+                  />
+                  <div className="flex gap-2">
+                    <select
+                      value={editForm.category}
+                      onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+                      className="px-3 py-2 bg-neutral-100 dark:bg-neutral-800 text-black dark:text-white border border-neutral-300 dark:border-neutral-700 rounded-lg flex-1 focus:outline-none focus:ring-2 focus:ring-primary"
+                    >
+                      {Array.from(new Set(tasks.map(t => t.category))).map(category => (
+                        <option key={category} value={category}>{category}</option>
+                      ))}
+                    </select>
+                    <select
+                      value={editForm.priority}
+                      onChange={(e) => setEditForm({ ...editForm, priority: e.target.value })}
+                      className="px-3 py-2 bg-neutral-100 dark:bg-neutral-800 text-black dark:text-white border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    >
+                      <option value="low">Low Priority</option>
+                      <option value="medium">Medium Priority</option>
+                      <option value="high">High Priority</option>
+                    </select>
+                  </div>
+                  <input
+                    type="date"
+                    value={editForm.dueDate}
+                    onChange={(e) => setEditForm({ ...editForm, dueDate: e.target.value })}
+                    className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 text-black dark:text-white border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                  <div className="flex gap-2 justify-end">
+                    <button
+                      onClick={() => setEditingTask(null)}
+                      className="px-3 py-1 bg-neutral-200 dark:bg-neutral-800 text-neutral rounded hover:bg-neutral-300 dark:hover:bg-neutral-700 transition-colors text-sm"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => handleSaveEdit(task.id)}
+                      className="px-3 py-1 bg-primary text-white rounded hover:bg-primary-dark transition-colors text-sm"
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                // View mode
+                <div className="flex items-center gap-2 w-full">
+                  <button
+                    onClick={() => toggleTask(task.id)}
+                    className="focus:outline-none focus:ring-2 focus:ring-primary rounded"
+                  >
+                    {task.status === 'done' ? (
+                      <CheckSquare className="w-5 h-5 text-primary" />
+                    ) : (
+                      <Square className="w-5 h-5 text-neutral" />
+                    )}
+                  </button>
+                  <div className="flex-1 min-w-0">
+                    <span className={task.status === 'done' ? 'truncate line-through text-neutral' : 'truncate'}>
+                      {task.title}
+                    </span>
+                    {task.description && (
+                      <p className="text-sm text-neutral-500 dark:text-neutral-400 truncate">
+                        {task.description}
+                      </p>
+                    )}
+                    {task.due_date && (
+                      <p className="text-xs text-neutral-400 dark:text-neutral-500">
+                        Due: {format(new Date(task.due_date), 'MMM dd, yyyy')}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    {task.priority && (
+                      <Flag className={`w-3 h-3 ${priorityColors[task.priority]}`} />
+                    )}
+                    <button
+                      onClick={() => handleStartEdit(task)}
+                      className="p-1 text-neutral hover:text-primary transition-colors"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteTask(task.id)}
+                      className="p-1 text-neutral hover:text-error transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
             </motion.div>
           ))}
         </AnimatePresence>

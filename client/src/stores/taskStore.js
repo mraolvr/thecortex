@@ -88,6 +88,7 @@ const useTaskStore = create(
             description: task.description || null,
             status: task.status || 'todo',
             priority: task.priority || 'medium',
+            category: task.category || 'Other',
             due_date: task.due_date || null,
             project_id: task.project_id || null,
             user_id: user.id,
